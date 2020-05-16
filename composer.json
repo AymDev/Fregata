@@ -12,6 +12,8 @@
     "minimum-stability": "stable",
     "require": {},
     "autoload": {
-        "Fregata\\": "src/"
+        "psr-4": {
+            "Fregata\\": "src/"
+        }
     }
 }
