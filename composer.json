@@ -1,0 +1,17 @@
+{
+    "name": "aymdev/fregata",
+    "description": "A tool to migrate data from a source to a destination, even if they have different DBMS or structure.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "AymDev",
+            "email": "aymericmayeux@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {},
+    "autoload": {
+        "Fregata\\": "src/"
+    }
+}
