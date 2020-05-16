@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+    mysql:
+        image: "mysql:5.7"
+        ports:
+            - 3306:3306
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: fregata_src
+
+    pgsql:
+        image: "postgres:11"
+        ports:
+            - 5432:5432
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: fregata_dest

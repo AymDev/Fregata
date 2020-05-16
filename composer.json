@@ -12,6 +12,16 @@
     "minimum-stability": "stable",
     "require": {},
     "autoload": {
-        "Fregata\\": "src/"
+        "psr-4": {
+            "Fregata\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Fregata\\Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.1"
     }
 }
