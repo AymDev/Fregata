@@ -7,7 +7,7 @@ services:
             - 3306:3306
         environment:
             MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: fregata_src
+            MYSQL_DATABASE: fregata_source
 
     pgsql:
         image: "postgres:11"
@@ -16,4 +16,4 @@ services:
         environment:
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres
-            POSTGRES_DB: fregata_dest
+            POSTGRES_DB: fregata_target
