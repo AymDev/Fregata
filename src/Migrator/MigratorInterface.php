@@ -2,6 +2,8 @@
 
 namespace Fregata\Migrator;
 
+use Doctrine\DBAL\Connection;
+
 /**
  * Migrator Interface
  *
@@ -18,4 +20,9 @@ interface MigratorInterface
      * @return string the target connection class name
      */
     public function getTargetConnection(): string;
+
+    /**
+     * Execute the migration
+     */
+    public function migrate(Connection $source, Connection $target): void;
 }

@@ -4,6 +4,7 @@
 namespace Fregata;
 
 
+use Doctrine\DBAL\Connection;
 use Fregata\Connection\AbstractConnection;
 use Fregata\Connection\ConnectionException;
 use Fregata\Migrator\MigratorInterface;
@@ -51,6 +52,28 @@ class Fregata
     }
 
     /**
+     * Get a source connection instance
+     */
+    private function getSource(string $connectionClassName): Connection
+    {
+        if (false === array_key_exists($connectionClassName, $this->sources)) {
+            throw new \LogicException(sprintf(
+                'The "%s" class could not be found in the source connections.',
+                $connectionClassName
+            ));
+        }
+
+        // Instantiate the connection if needed
+        if (null === $this->sources["${connectionClassName}"]) {
+            /** @var AbstractConnection $connectionWrapper */
+            $connectionWrapper = new $connectionClassName();
+            $this->sources[$connectionClassName] = $connectionWrapper->getConnection();
+        }
+
+        return $this->sources[$connectionClassName];
+    }
+
+    /**
      * Register a new database connection as a target
      *
      * @param string $connectionClassName the \Fregata\Connection\AbstractConnection child class name
@@ -67,6 +90,28 @@ class Fregata
 
         $this->targets[$connectionClassName] = null;
         return $this;
+    }
+
+    /**
+     * Get a target connection instance
+     */
+    private function getTarget(string $connectionClassName): Connection
+    {
+        if (false === array_key_exists($connectionClassName, $this->targets)) {
+            throw new \LogicException(sprintf(
+                'The "%s" class could not be found in the target connections.',
+                $connectionClassName
+            ));
+        }
+
+        // Instantiate the connection if needed
+        if (null === $this->targets[$connectionClassName]) {
+            /** @var AbstractConnection $connectionWrapper */
+            $connectionWrapper = new $connectionClassName();
+            $this->targets[$connectionClassName] = $connectionWrapper->getConnection();
+        }
+
+        return $this->targets[$connectionClassName];
     }
 
     /**
@@ -88,5 +133,25 @@ class Fregata
 
         $this->migrators[] = $migrator;
         return $this;
+    }
+
+    /**
+     * Execute the migrations
+     */
+    public function run(): void
+    {
+        if (count($this->migrators) === 0) {
+            throw new \LogicException(sprintf(
+                'No migrators registered. Register one using "%s::addMigrator()".',
+                self::class
+            ));
+        }
+
+        foreach ($this->migrators as $migrator) {
+            $source = $this->getSource($migrator->getSourceConnection());
+            $target = $this->getTarget($migrator->getTargetConnection());
+
+            $migrator->migrate($source, $target);
+        }
     }
 }
