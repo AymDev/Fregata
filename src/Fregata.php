@@ -4,9 +4,9 @@
 namespace Fregata;
 
 
-use Doctrine\DBAL\Connection;
 use Fregata\Connection\AbstractConnection;
 use Fregata\Connection\ConnectionException;
+use Fregata\Migrator\MigratorInterface;
 
 class Fregata
 {
@@ -23,6 +23,13 @@ class Fregata
      * @var AbstractConnection[]
      */
     private array $targets = [];
+
+    /**
+     * The migration classes
+     *
+     * @var MigratorInterface[]
+     */
+    private array $migrators = [];
 
     /**
      * Register a new database connection as a source
@@ -59,6 +66,15 @@ class Fregata
         }
 
         $this->targets[$connectionClassName] = null;
+        return $this;
+    }
+
+    /**
+     * Register a new Migrator
+     */
+    public function addMigrator(MigratorInterface $migrator): self
+    {
+        $this->migrators[] = $migrator;
         return $this;
     }
 }
