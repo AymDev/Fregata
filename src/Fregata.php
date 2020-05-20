@@ -39,7 +39,7 @@ class Fregata
      * @return Fregata the instance itself
      * @throws ConnectionException if the class is not a child of \Fregata\Connection\AbstractConnection
      */
-    public function addSource(string $connectionClassName): self
+    private function addSource(string $connectionClassName): self
     {
         // Must be an implementation of AbstractConnection
         if (false === is_subclass_of($connectionClassName, AbstractConnection::class)) {
@@ -58,7 +58,7 @@ class Fregata
      * @return Fregata the instance itself
      * @throws ConnectionException if the class is not a child of \Fregata\Connection\AbstractConnection
      */
-    public function addTarget(string $connectionClassName): self
+    private function addTarget(string $connectionClassName): self
     {
         // Must be an implementation of AbstractConnection
         if (false === is_subclass_of($connectionClassName, AbstractConnection::class)) {
@@ -71,9 +71,21 @@ class Fregata
 
     /**
      * Register a new Migrator
+     *
+     * @throws ConnectionException
      */
     public function addMigrator(MigratorInterface $migrator): self
     {
+        // Register the source connection
+        if (false === array_key_exists($migrator->getSourceConnection(), $this->sources)) {
+            $this->addSource($migrator->getSourceConnection());
+        }
+
+        // Register the target connection
+        if (false === array_key_exists($migrator->getTargetConnection(), $this->targets)) {
+            $this->addTarget($migrator->getTargetConnection());
+        }
+
         $this->migrators[] = $migrator;
         return $this;
     }

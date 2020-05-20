@@ -13,40 +13,7 @@ use PHPUnit\Framework\TestCase;
 class FregataTest extends TestCase
 {
     /**
-     * Valid connections must be sent successfully
-     */
-    public function testAddValidConnections()
-    {
-        $source = $this->getMockForAbstractClass(AbstractConnection::class);
-        $target = $this->getMockForAbstractClass(AbstractConnection::class);
-
-        $fregata = new Fregata();
-        $result = $fregata
-            ->addSource(get_class($source))
-            ->addTarget(get_class($target));
-
-        // Just to be sure no exception is thrown
-        self::assertSame($fregata, $result);
-    }
-
-    /**
-     * Invalid connections must throw an Exception
-     */
-    public function testAddInvalidConnections()
-    {
-        $source = new class {};
-        $target = new class {};
-
-        $fregata = new Fregata();
-
-        self::expectException(ConnectionException::class);
-        $fregata
-            ->addSource(get_class($source))
-            ->addTarget(get_class($target));
-    }
-
-    /**
-     * Migrators implementing MigratorInterface must be added successfully
+     * Migrators implementing MigratorInterface with valid connections must be added successfully
      */
     public function testAddValidMigrator()
     {
@@ -56,13 +23,31 @@ class FregataTest extends TestCase
         $target = $this->getMockForAbstractClass(AbstractConnection::class, [], $targetClassName);
 
         $migrator = $this->createMock(MigratorInterface::class);
+        $migrator->method('getSourceConnection')->willReturn($sourceClassName);
+        $migrator->method('getTargetConnection')->willReturn($targetClassName);
 
         $fregata = (new Fregata())
-            ->addSource($sourceClassName)
-            ->addTarget($targetClassName)
             ->addMigrator($migrator);
 
         // Just to be sure no exception is thrown
         self::assertInstanceOf(Fregata::class, $fregata);
+    }
+
+    /**
+     * Any migrator must return connection class names extending AbstractConnection
+     */
+    public function testAddInvalidMigrator()
+    {
+        $invalidSource = new class {};
+        $invalidTarget = new class {};
+
+        $migrator = $this->createMock(MigratorInterface::class);
+        $migrator->method('getSourceConnection')->willReturn(get_class($invalidSource));
+        $migrator->method('getTargetConnection')->willReturn(get_class($invalidTarget));
+
+        $fregata = new Fregata();
+
+        self::expectException(ConnectionException::class);
+        $fregata->addMigrator($migrator);
     }
 }
