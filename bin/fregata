@@ -1,0 +1,34 @@
+#!/usr/bin/env php
+<?php
+
+use Fregata\Console\MigrationCommand;
+use Symfony\Component\Console\Application;
+
+// Include Composer autoloader
+$autoload_paths = [
+    __DIR__ . '/../autoload.php',
+    __DIR__ . '/../vendor/autoload.php',
+];
+$autoloaded     = false;
+
+foreach ($autoload_paths as $autoload) {
+    if (file_exists($autoload)) {
+        require_once $autoload;
+        $autoloaded = true;
+        break;
+    }
+}
+
+if (false === $autoloaded) {
+    echo 'Could not find Composer autoload file. Aborting.' . PHP_EOL;
+    exit(1);
+}
+
+// Run console application
+$application = new Application('Fregata', 'v0.1.0 (dev)');
+$mainCommand = new MigrationCommand();
+
+$application->add($mainCommand);
+$application->setDefaultCommand($mainCommand->getName());
+
+$application->run();
