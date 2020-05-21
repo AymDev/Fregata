@@ -1,0 +1,30 @@
+{
+    "name": "aymdev/fregata",
+    "description": "Database migration framework allowing data migration between different DBMS or database structures.",
+    "type": "framework",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "AymDev",
+            "email": "aymericmayeux@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=7.4",
+        "doctrine/dbal": "^2.10"
+    },
+    "autoload": {
+        "psr-4": {
+            "Fregata\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Fregata\\Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.1"
+    }
+}
