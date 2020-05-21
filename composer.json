@@ -1,7 +1,7 @@
 {
     "name": "aymdev/fregata",
-    "description": "A tool to migrate data from a source to a destination, even if they have different DBMS or structure.",
-    "type": "library",
+    "description": "Database migration framework allowing data migration between different DBMS or database structures.",
+    "type": "framework",
     "license": "MIT",
     "authors": [
         {
@@ -11,6 +11,7 @@
     ],
     "minimum-stability": "stable",
     "require": {
+        "php": ">=7.4",
         "doctrine/dbal": "^2.10"
     },
     "autoload": {
