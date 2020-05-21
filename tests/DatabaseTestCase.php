@@ -27,4 +27,28 @@ abstract class DatabaseTestCase extends TestCase
             public string $url = 'pgsql://postgres:postgres@127.0.0.1:5432/fregata_target';
         };
     }
+
+    /**
+     * Create a table with a given dataset in the source database
+     */
+    public function createSourceTable(AbstractConnection $source, Table $table, array $dataset): void
+    {
+        $sourceConnection = $source->getConnection();
+        $sourceConnection
+            ->getSchemaManager()
+            ->dropAndCreateTable($table);
+
+        foreach ($dataset as $row) {
+            $sourceConnection->insert($table->getName(), $row);
+        }
+    }
+
+    /**
+     * Create an empty table in the target database
+     */
+    public function createTargetTable(AbstractConnection $target, Table $table): void
+    {
+        $targetSchema = $target->getConnection()->getSchemaManager();
+        $targetSchema->dropAndCreateTable($table);
+    }
 }
