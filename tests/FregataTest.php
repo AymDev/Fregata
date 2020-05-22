@@ -8,7 +8,7 @@ use Fregata\Connection\ConnectionException;
 use Fregata\Fregata;
 use Fregata\Migrator\MigratorInterface;
 
-class FregataTest extends DatabaseTestCase
+class FregataTest extends FregataTestCase
 {
     /**
      * Migrators implementing MigratorInterface with valid connections must be added successfully

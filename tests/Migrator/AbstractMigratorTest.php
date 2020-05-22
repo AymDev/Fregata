@@ -10,10 +10,9 @@ use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\StringType;
 use Fregata\Migrator\AbstractMigrator;
 use Fregata\Migrator\MigratorException;
-use Fregata\Tests\DatabaseTestCase;
-use Fregata\Tests\TestHelper;
+use Fregata\Tests\FregataTestCase;
 
-class AbstractMigratorTest extends DatabaseTestCase
+class AbstractMigratorTest extends FregataTestCase
 {
     /**
      * Set database initial state

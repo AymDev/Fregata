@@ -7,11 +7,21 @@ use Doctrine\DBAL\Schema\Table;
 use Fregata\Connection\AbstractConnection;
 use Fregata\Migrator\MigratorInterface;
 use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
 use org\bovigo\vfs\vfsStreamFile;
 use PHPUnit\Framework\TestCase;
 
-abstract class DatabaseTestCase extends TestCase
+abstract class FregataTestCase extends TestCase
 {
+    /** @var vfsStreamDirectory Virtual file system */
+    protected vfsStreamDirectory $vfs;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->vfs = vfsStream::setup('fregata-test');
+    }
+
     /**
      * Get a MySQL connection
      */

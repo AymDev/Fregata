@@ -2,25 +2,14 @@
 
 namespace Fregata\Tests\Console;
 
-use Doctrine\DBAL\Connection;
-use Fregata\Connection\AbstractConnection;
 use Fregata\Console\MigrationCommand;
-use Fregata\Migrator\MigratorInterface;
-use Fregata\Tests\DatabaseTestCase;
+use Fregata\Tests\FregataTestCase;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class MigrationCommandTest extends DatabaseTestCase
+class MigrationCommandTest extends FregataTestCase
 {
-    private vfsStreamDirectory $vfs;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->vfs = vfsStream::setup('fregata-test');
-    }
-
     /**
      * Use a configuration file
      */
