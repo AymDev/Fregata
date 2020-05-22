@@ -36,7 +36,7 @@ class Configuration
     /**
      * Configuration constructor.
      */
-    public function __construct(array $configuration)
+    public function __construct(array $configuration = [])
     {
         $this->migrators           = $configuration['migrators'] ?? null;
         $this->migrators_directory = $configuration['migrators_directory'] ?? null;
@@ -59,11 +59,27 @@ class Configuration
     }
 
     /**
+     * Add a migrator class name to the "migrators" config key
+     */
+    public function addMigrator(string $className): void
+    {
+        $this->migrators[] = $className;
+    }
+
+    /**
      * Get migrators list declared in "migrators" key
      */
     private function getMigratorList(): array
     {
         return $this->migrators;
+    }
+
+    /**
+     * Define the migrators parent directory
+     */
+    public function setMigratorsDirectory(string $path): void
+    {
+        $this->migrators_directory = $path;
     }
 
     /**
