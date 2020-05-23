@@ -6,7 +6,7 @@ use Symfony\Component\Console\Application;
 
 // Include Composer autoloader
 $autoload_paths = [
-    __DIR__ . '/../autoload.php',
+    __DIR__ . '/../../../autoload.php',
     __DIR__ . '/../vendor/autoload.php',
 ];
 $autoloaded     = false;
