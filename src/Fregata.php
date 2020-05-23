@@ -1,29 +1,22 @@
 <?php
 
-
 namespace Fregata;
 
-
-use Doctrine\DBAL\Connection;
-use Fregata\Connection\AbstractConnection;
-use Fregata\Connection\ConnectionException;
+use DI\Container;
+use DI\DependencyException;
+use DI\NotFoundException;
+use Fregata\Migrator\MigratorException;
 use Fregata\Migrator\MigratorInterface;
+use Psr\Container\ContainerInterface;
 
 class Fregata
 {
     /**
-     * The database connection to get data from
+     * Service container (PHP-DI by default)
      *
-     * @var AbstractConnection[]
+     * @var ContainerInterface
      */
-    private array $sources = [];
-
-    /**
-     * The database connection to save data to
-     *
-     * @var AbstractConnection[]
-     */
-    private array $targets = [];
+    private ContainerInterface $container;
 
     /**
      * The migration classes
@@ -33,105 +26,32 @@ class Fregata
     private array $migrators = [];
 
     /**
-     * Register a new database connection as a source
-     *
-     * @param string $connectionClassName the \Fregata\Connection\AbstractConnection child class name
-     *
-     * @return Fregata the instance itself
-     * @throws ConnectionException if the class is not a child of \Fregata\Connection\AbstractConnection
+     * Fregata constructor
      */
-    private function addSource(string $connectionClassName): self
+    public function __construct(?ContainerInterface $container = null)
     {
-        // Must be an implementation of AbstractConnection
-        if (false === is_subclass_of($connectionClassName, AbstractConnection::class)) {
-            throw ConnectionException::wrongConnectionType($connectionClassName);
-        }
-
-        $this->sources[$connectionClassName] = null;
-        return $this;
-    }
-
-    /**
-     * Get a source connection instance
-     */
-    private function getSource(string $connectionClassName): Connection
-    {
-        if (false === array_key_exists($connectionClassName, $this->sources)) {
-            throw new \LogicException(sprintf(
-                'The "%s" class could not be found in the source connections.',
-                $connectionClassName
-            ));
-        }
-
-        // Instantiate the connection if needed
-        if (null === $this->sources["${connectionClassName}"]) {
-            /** @var AbstractConnection $connectionWrapper */
-            $connectionWrapper = new $connectionClassName();
-            $this->sources[$connectionClassName] = $connectionWrapper->getConnection();
-        }
-
-        return $this->sources[$connectionClassName];
-    }
-
-    /**
-     * Register a new database connection as a target
-     *
-     * @param string $connectionClassName the \Fregata\Connection\AbstractConnection child class name
-     *
-     * @return Fregata the instance itself
-     * @throws ConnectionException if the class is not a child of \Fregata\Connection\AbstractConnection
-     */
-    private function addTarget(string $connectionClassName): self
-    {
-        // Must be an implementation of AbstractConnection
-        if (false === is_subclass_of($connectionClassName, AbstractConnection::class)) {
-            throw ConnectionException::wrongConnectionType($connectionClassName);
-        }
-
-        $this->targets[$connectionClassName] = null;
-        return $this;
-    }
-
-    /**
-     * Get a target connection instance
-     */
-    private function getTarget(string $connectionClassName): Connection
-    {
-        if (false === array_key_exists($connectionClassName, $this->targets)) {
-            throw new \LogicException(sprintf(
-                'The "%s" class could not be found in the target connections.',
-                $connectionClassName
-            ));
-        }
-
-        // Instantiate the connection if needed
-        if (null === $this->targets[$connectionClassName]) {
-            /** @var AbstractConnection $connectionWrapper */
-            $connectionWrapper = new $connectionClassName();
-            $this->targets[$connectionClassName] = $connectionWrapper->getConnection();
-        }
-
-        return $this->targets[$connectionClassName];
+        $this->container = $container ?? new Container();
     }
 
     /**
      * Register a new Migrator
      *
-     * @throws ConnectionException
+     * @param string $migratorClassName the name of the migrator class
+     *
+     * @return Fregata
+     * @throws MigratorException
+     * @throws DependencyException
+     * @throws NotFoundException
      */
-    public function addMigrator(MigratorInterface $migrator): self
+    public function addMigrator(string $migratorClassName): self
     {
-        // Register the source connection
-        if (false === array_key_exists($migrator->getSourceConnection(), $this->sources)) {
-            $this->addSource($migrator->getSourceConnection());
+        // Must be an implementation of MigratorInterface
+        if (false === is_subclass_of($migratorClassName, MigratorInterface::class)) {
+            throw MigratorException::wrongMigrator($migratorClassName);
         }
 
-        // Register the target connection
-        if (false === array_key_exists($migrator->getTargetConnection(), $this->targets)) {
-            $this->addTarget($migrator->getTargetConnection());
-        }
-
-        $this->migrators[] = $migrator;
+        // Register the migrator
+        $this->migrators[$migratorClassName] = $this->container->get($migratorClassName);
         return $this;
     }
 

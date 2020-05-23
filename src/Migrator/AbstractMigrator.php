@@ -11,7 +11,17 @@ use Doctrine\DBAL\Query\QueryBuilder;
  */
 abstract class AbstractMigrator implements MigratorInterface
 {
-    public function migrate(Connection $source, Connection $target): \Generator
+    /**
+     * @var array|null rows to insert into target database
+     */
+    private ?array $data = null;
+
+    /**
+     * Get the data in the source database
+     *
+     * @throws MigratorException
+     */
+    protected function fetchData(Connection $source): void
     {
         // Get SELECT query to fetch data from source
         $pullQuery = $source->createQueryBuilder();

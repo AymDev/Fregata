@@ -14,4 +14,13 @@ class MigratorException extends \Exception
             $operation
         ));
     }
+
+    public static function wrongMigrator(string $className): self
+    {
+        return new self(sprintf(
+            'A migrator must implement "%s", instance of "%s" provided.',
+            MigratorInterface::class,
+            $className
+        ));
+    }
 }

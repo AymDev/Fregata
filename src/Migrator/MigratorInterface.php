@@ -3,6 +3,7 @@
 namespace Fregata\Migrator;
 
 use Doctrine\DBAL\Connection;
+use Fregata\Connection\AbstractConnection;
 
 /**
  * Migrator Interface
@@ -12,14 +13,14 @@ use Doctrine\DBAL\Connection;
 interface MigratorInterface
 {
     /**
-     * @return string the source connection class name
+     * @return AbstractConnection the connection to the source database
      */
-    public function getSourceConnection(): string;
+    public function getSourceConnection(): AbstractConnection;
 
     /**
-     * @return string the target connection class name
+     * @return AbstractConnection the connection to the target database
      */
-    public function getTargetConnection(): string;
+    public function getTargetConnection(): AbstractConnection;
 
     /**
      * Execute the migration
