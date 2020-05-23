@@ -11,7 +11,7 @@ use Doctrine\DBAL\Query\QueryBuilder;
  */
 abstract class AbstractMigrator implements MigratorInterface
 {
-    public function migrate(Connection $source, Connection $target): int
+    public function migrate(Connection $source, Connection $target): \Generator
     {
         // Get SELECT query to fetch data from source
         $pullQuery = $source->createQueryBuilder();
@@ -37,9 +37,8 @@ abstract class AbstractMigrator implements MigratorInterface
             }
 
             $insertedRows += $pushQuery->execute();
+            yield $insertedRows;
         }
-
-        return $insertedRows;
     }
 
     /**

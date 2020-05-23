@@ -136,22 +136,16 @@ class Fregata
     }
 
     /**
-     * Execute the migrations
+     * Get the registered migrators
      */
-    public function run(): void
+    public function run(): \Generator
     {
         if (count($this->migrators) === 0) {
-            throw new \LogicException(sprintf(
-                'No migrators registered. Register one using "%s::addMigrator()".',
-                self::class
-            ));
+            throw new \LogicException('No migrators registered.');
         }
 
         foreach ($this->migrators as $migrator) {
-            $source = $this->getSource($migrator->getSourceConnection());
-            $target = $this->getTarget($migrator->getTargetConnection());
-
-            $migrator->migrate($source, $target);
+            yield $migrator;
         }
     }
 }

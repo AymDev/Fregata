@@ -24,7 +24,7 @@ interface MigratorInterface
     /**
      * Execute the migration
      *
-     * @return int the number of rows inserted into the target database
+     * @return \Generator which yields the number of rows inserted into the target database
      */
-    public function migrate(Connection $source, Connection $target): int;
+    public function migrate(Connection $source, Connection $target): \Generator;
 }
