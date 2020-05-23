@@ -3,6 +3,7 @@
 namespace Fregata\Console;
 
 use Fregata\Fregata;
+use Fregata\Migrator\MigratorInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -72,7 +73,7 @@ class MigrationCommand extends Command
                 $io->error(sprintf('Migrator class "%s" not found.', $migrator));
                 exit(1);
             }
-            $fregata->addMigrator(new $migrator);
+            $fregata->addMigrator($migrator);
         }
         $io->success(sprintf('Configuration has been loaded for %d migrators.', count($migrators)));
 
@@ -87,7 +88,27 @@ class MigrationCommand extends Command
             }
         }
 
-        $fregata->run();
+        foreach ($fregata->run() as $migrator) {
+            /** @var MigratorInterface $migrator */
+            $source = $migrator->getSourceConnection()->getConnection();
+            $target = $migrator->getTargetConnection()->getConnection();
+
+            $io->title(sprintf(
+                'Executing "%s" [%d rows]',
+                get_class($migrator),
+                $migrator->getTotalRows($source)
+            ));
+
+            $progressBar = $io->createProgressBar($migrator->getTotalRows($source));
+            $progressBar->start();
+
+            foreach ($migrator->migrate($source, $target) as $amountInserted) {
+                $progressBar->setProgress($amountInserted);
+            }
+
+            $progressBar->finish();
+        }
+
         $io->success('Migrated successfully !');
         return 0;
     }
