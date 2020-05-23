@@ -23,6 +23,11 @@ interface MigratorInterface
     public function getTargetConnection(): AbstractConnection;
 
     /**
+     * @return int how many rows to migrate
+     */
+    public function getTotalRows(Connection $source): int;
+
+    /**
      * Execute the migration
      *
      * @return \Generator which yields the number of rows inserted into the target database

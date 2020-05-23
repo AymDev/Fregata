@@ -33,11 +33,26 @@ abstract class AbstractMigrator implements MigratorInterface
 
         // Execute & fetch
         $data = $pullQuery->execute();
-        $data = $data->fetchAll(FetchMode::ASSOCIATIVE);
+        $this->data = $data->fetchAll(FetchMode::ASSOCIATIVE);
+    }
+
+    public function getTotalRows(Connection $source): int
+    {
+        if (null === $this->data) {
+            $this->fetchData($source);
+        }
+        return count($this->data);
+    }
+
+    public function migrate(Connection $source, Connection $target): \Generator
+    {
+        if (null === $this->data) {
+            $this->fetchData($source);
+        }
 
         // Insert rows 1 by 1
         $insertedRows = 0;
-        foreach ($data as $row) {
+        foreach ($this->data as $row) {
             // Get INSERT query to fetch data from source
             $pushQuery = $target->createQueryBuilder();
             $pushQuery = $this->pushToTarget($pushQuery, $row);
