@@ -2,6 +2,14 @@
     "name": "aymdev/fregata",
     "description": "Database migration framework allowing data migration between different DBMS or database structures.",
     "type": "framework",
+    "keywords": [
+        "database",
+        "doctrine",
+        "migration",
+        "migration-framework",
+        "migration-tool",
+        "sql"
+    ],
     "license": "MIT",
     "authors": [
         {

@@ -1,6 +1,8 @@
 # Fregata - PHP database migrator
 
 ![](https://github.com/AymDev/Fregata/workflows/Unit%20Test%20Suite/badge.svg)
+[![Latest Stable Version](https://poser.pugx.org/aymdev/fregata/v)](//packagist.org/packages/aymdev/fregata)
+[![License](https://poser.pugx.org/aymdev/fregata/license)](//packagist.org/packages/aymdev/fregata)
 
 **Fregata** is a framework allowing data migration between different DBMS or database structures.
 It runs with **Doctrine**'s [DBAL](https://www.doctrine-project.org/projects/dbal.html).
@@ -8,18 +10,25 @@ It runs with **Doctrine**'s [DBAL](https://www.doctrine-project.org/projects/dba
 **Documentation**:
 
 1. [Concepts](#concepts)
-    1. [Connections](#connections)
-    2. [Migrators](#migrators)
+    1. [Connection](#connection)
+    2. [Migrator](#migrator)
         1. [Creating custom migrators](#creating-custom-migrators)
         2. [Using AbstractMigrator](#using-abstractmigrator)
 2. [Usage](#usage)
     1. [Installation](#installation)
     2. [Using Fregata](#using-fregata)
+        1. [Command line usage](#command-line-usage)
+            - [specifying configuration file path](#specifying-configuration-file-path)
+            - [adding migrators](#adding-migrators)
+            - [specifying migrators directory](#specifying-migrators-directory)
+        2. [Configuration file](#configuration-file)
+            - [migrators](#migrators)
+            - [migrators_directory](#migrators_directory)
 
 # Concepts
 **Fregata** uses 2 types of component you need to build based on provided abstraction.
 
-## Connections
+## Connection
 *Connections* are value objects representing a connection to a single database. 
 It must extend `AbstractConnection` and have properties to build the database connection.
 ```php
@@ -43,7 +52,7 @@ You should have at least 2 *connections*:
  - a **source**: database to get data from
  - a **target**: database to save data into
 
-## Migrators
+## Migrator
 A *migrator* is a component which defines how to migrate data from a **source** to a **target**.
 Any *migrator* must define its **source** connection, and its **target** connection.
 
@@ -119,20 +128,49 @@ composer require aymdev/fregata
 **Fregata** requires **PHP** >= 7.4.
 
 ## Using Fregata
-There is no vendor binary provided yet. 
-A migration can be executed using the main `Fregata` class:
-```php
-<?php
-
-use Fregata\Fregata;
-
-require_once __DIR__ . '/vendor/autoload.php';
-
-$fregata = new Fregata();
-
-// Add a migrator
-$fregata->addMigrator(new MyMigrator());
-
-// Start the migration
-$fregata->run();
+To run the migrators, use the provided binary:
+```shell
+./vendor/bin/fregata
 ```
+### Command line usage
+Without any options, **Fregata** will look for a **fregata.yaml** file in your project's root directory.
+If you do not wish to create a configuration file, you can use the following command line options.
+
+#### specifying configuration file path
+Use the `--configuration` (or `-c`) option to specify the configuration file path:
+```shell
+./vendor/bin/fregata --configuration path/to/fregata-config.yml
+```
+
+#### adding migrators
+If you have only a few **migrators**, you can list their respective class names with `--migrator` (or `-m`):
+```shell
+./vendor/bin/fregata -m MyApp\FirstMigrator -m MyApp\SecondMigrator
+```
+
+#### specifying migrators directory
+This is the easiest way if you have many **migrators**. Use the `--migrators-dir` (or `-d`) option:
+```shell
+./vendor/bin/fregata --migrators-dir src/Migrator
+```
+>**Note:** it will check any PHP file in the directory (and subdirectories) and register the class if one is found and implements `MigratorInterface`.
+
+### Configuration file
+The preferred option would be to create a **fregata.yaml** file in your project's root directory.
+This file should list your **migrators**.
+
+#### migrators
+The `migrators` key can be used to list the **migrator** classes:
+```yaml
+migrators:
+    - MyApp\FirstMigrator
+    - MyApp\SecondMigrator
+```
+
+#### migrators_directory
+The `migrators_directory` key can be used to specify a directory containing your **migrators**:
+```yaml
+migrators_directory: src/Migrator
+```
+Using this configuration key will parse every `.php` file to check if there is a class in it implementing `MigratorInterface`.
+It automatically excludes abstractions or unrelated classes.
