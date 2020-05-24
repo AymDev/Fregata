@@ -72,23 +72,28 @@ abstract class FregataTestCase extends TestCase
     public function getMigratorInterfaceConcretion(): MigratorInterface
     {
         return new class implements MigratorInterface {
-            public function getSourceConnection(): string
+            public function getSourceConnection(): AbstractConnection
             {
-                return get_class(new class extends AbstractConnection {
+                return new class extends AbstractConnection {
                     public string $url = 'mysql://root:root@127.0.0.1:3306/fregata_source';
-                });
+                };
             }
 
-            public function getTargetConnection(): string
+            public function getTargetConnection(): AbstractConnection
             {
-                return get_class(new class extends AbstractConnection {
+                return new class extends AbstractConnection {
                     public string $url = 'pgsql://postgres:postgres@127.0.0.1:5432/fregata_target';
-                });
+                };
             }
 
-            public function migrate(Connection $source, Connection $target): int
+            public function getTotalRows(Connection $source): int
             {
-                return 0;
+                return 1;
+            }
+
+            public function migrate(Connection $source, Connection $target): \Generator
+            {
+                yield 1;
             }
         };
     }
@@ -107,23 +112,28 @@ abstract class FregataTestCase extends TestCase
             use Fregata\Migrator\MigratorInterface;
             
             class $classname implements MigratorInterface {
-                public function getSourceConnection(): string
+                public function getSourceConnection(): AbstractConnection
                 {
-                    return get_class(new class extends AbstractConnection {
+                    return new class extends AbstractConnection {
                         public string \$url = 'mysql://root:root@127.0.0.1:3306/fregata_source';
-                    });
+                    };
                 }
                 
-                public function getTargetConnection(): string
+                public function getTargetConnection(): AbstractConnection
                 {
-                    return get_class(new class extends AbstractConnection {
+                    return new class extends AbstractConnection {
                         public string \$url = 'pgsql://postgres:postgres@127.0.0.1:5432/fregata_target';
-                    });
+                    };
                 }
                 
-                public function migrate(Connection \$source, Connection \$target): int
+                public function getTotalRows(Connection \$source): int
                 {
-                    return 0;
+                    return 1;
+                }
+                
+                public function migrate(Connection \$source, Connection \$target): \Generator
+                {
+                    yield 1;
                 }
             }
             PHP_CLASS

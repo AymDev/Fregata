@@ -8,6 +8,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\StringType;
+use Fregata\Connection\AbstractConnection;
 use Fregata\Migrator\AbstractMigrator;
 use Fregata\Migrator\MigratorException;
 use Fregata\Tests\FregataTestCase;
@@ -52,6 +53,20 @@ class AbstractMigratorTest extends FregataTestCase
     public function testMigrate()
     {
         $migrator = new class extends AbstractMigrator {
+            public function getSourceConnection(): AbstractConnection
+            {
+                return new class extends AbstractConnection {
+                    public string $url = 'mysql://root:root@127.0.0.1:3306/fregata_source';
+                };
+            }
+
+            public function getTargetConnection(): AbstractConnection
+            {
+                return new class extends AbstractConnection {
+                    public string $url = 'pgsql://postgres:postgres@127.0.0.1:5432/fregata_target';
+                };
+            }
+
             protected function pullFromSource(QueryBuilder $queryBuilder): QueryBuilder
             {
                 return $queryBuilder
@@ -68,22 +83,16 @@ class AbstractMigratorTest extends FregataTestCase
                     ->setParameter(0, $row['col_str'])
                     ->setParameter(1, $row['col_int']);
             }
-
-            public function getSourceConnection(): string
-            {
-                return '';
-            }
-
-            public function getTargetConnection(): string
-            {
-                return '';
-            }
         };
 
-        $result = $migrator->migrate(
-            $this->getMySQLConnection()->getConnection(),
-            $this->getPgSQLConnection()->getConnection()
+        $migration = $migrator->migrate(
+            $migrator->getSourceConnection()->getConnection(),
+            $migrator->getTargetConnection()->getConnection()
         );
+        $result = 0;
+        foreach ($migration as $iteration) {
+            $result = $iteration;
+        }
         self::assertSame(3, $result);
     }
 
@@ -93,6 +102,20 @@ class AbstractMigratorTest extends FregataTestCase
     public function testPullOperationIsSelect()
     {
         $migrator = new class extends AbstractMigrator {
+            public function getSourceConnection(): AbstractConnection
+            {
+                return new class extends AbstractConnection {
+                    public string $url = 'mysql://root:root@127.0.0.1:3306/fregata_source';
+                };
+            }
+
+            public function getTargetConnection(): AbstractConnection
+            {
+                return new class extends AbstractConnection {
+                    public string $url = 'pgsql://postgres:postgres@127.0.0.1:5432/fregata_target';
+                };
+            }
+
             protected function pullFromSource(QueryBuilder $queryBuilder): QueryBuilder
             {
                 return $queryBuilder->delete('abstract_migrator');
@@ -102,23 +125,14 @@ class AbstractMigratorTest extends FregataTestCase
             {
                 return $queryBuilder;
             }
-
-            public function getSourceConnection(): string
-            {
-                return '';
-            }
-
-            public function getTargetConnection(): string
-            {
-                return '';
-            }
         };
 
         self::expectException(MigratorException::class);
-        $migrator->migrate(
-            $this->getMySQLConnection()->getConnection(),
-            $this->getPgSQLConnection()->getConnection()
+        $migration = $migrator->migrate(
+            $migrator->getSourceConnection()->getConnection(),
+            $migrator->getTargetConnection()->getConnection()
         );
+        $migration->next();
     }
 
     /**
@@ -127,6 +141,20 @@ class AbstractMigratorTest extends FregataTestCase
     public function testPushOperationIsInsert()
     {
         $migrator = new class extends AbstractMigrator {
+            public function getSourceConnection(): AbstractConnection
+            {
+                return new class extends AbstractConnection {
+                    public string $url = 'mysql://root:root@127.0.0.1:3306/fregata_source';
+                };
+            }
+
+            public function getTargetConnection(): AbstractConnection
+            {
+                return new class extends AbstractConnection {
+                    public string $url = 'pgsql://postgres:postgres@127.0.0.1:5432/fregata_target';
+                };
+            }
+
             protected function pullFromSource(QueryBuilder $queryBuilder): QueryBuilder
             {
                 return $queryBuilder
@@ -138,22 +166,13 @@ class AbstractMigratorTest extends FregataTestCase
             {
                 return $queryBuilder->delete('abstract_migrator');
             }
-
-            public function getSourceConnection(): string
-            {
-                return '';
-            }
-
-            public function getTargetConnection(): string
-            {
-                return '';
-            }
         };
 
         self::expectException(MigratorException::class);
-        $migrator->migrate(
-            $this->getMySQLConnection()->getConnection(),
-            $this->getPgSQLConnection()->getConnection()
+        $migration = $migrator->migrate(
+            $migrator->getSourceConnection()->getConnection(),
+            $migrator->getTargetConnection()->getConnection()
         );
+        $migration->next();
     }
 }
