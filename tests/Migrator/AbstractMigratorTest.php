@@ -85,6 +85,10 @@ class AbstractMigratorTest extends FregataTestCase
             }
         };
 
+        // Get the total number of rows
+        $total = $migrator->getTotalRows($migrator->getSourceConnection()->getConnection());
+        self::assertSame(3, $total);
+
         $migration = $migrator->migrate(
             $migrator->getSourceConnection()->getConnection(),
             $migrator->getTargetConnection()->getConnection()
