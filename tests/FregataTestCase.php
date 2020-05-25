@@ -86,11 +86,6 @@ abstract class FregataTestCase extends TestCase
                 };
             }
 
-            public function getPullBatchSize(): ?int
-            {
-                return null;
-            }
-
             public function getTotalRows(Connection $source): int
             {
                 return 1;
@@ -129,11 +124,6 @@ abstract class FregataTestCase extends TestCase
                     return new class extends AbstractConnection {
                         public string \$url = 'pgsql://postgres:postgres@127.0.0.1:5432/fregata_target';
                     };
-                }
-
-                public function getPullBatchSize(): ?int
-                {
-                    return null;
                 }
                 
                 public function getTotalRows(Connection \$source): int

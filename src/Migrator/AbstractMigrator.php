@@ -29,9 +29,10 @@ abstract class AbstractMigrator implements MigratorInterface
     protected int $pullOffset = 0;
 
     /**
-     * Gets all the rows at once by default
+     * How many rows should be fetched from source at once, or all rows if null (default)
+     * @return int|null number of rows
      */
-    public function getPullBatchSize(): ?int
+    protected function getPullBatchSize(): ?int
     {
         return null;
     }

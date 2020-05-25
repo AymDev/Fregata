@@ -23,11 +23,6 @@ interface MigratorInterface
     public function getTargetConnection(): AbstractConnection;
 
     /**
-     * @return int|null how many rows should be fetched from source at once, or all rows if null
-     */
-    public function getPullBatchSize(): ?int;
-
-    /**
      * @return int how many rows to migrate
      */
     public function getTotalRows(Connection $source): int;
