@@ -3,8 +3,10 @@
 namespace Fregata\Migrator;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Fregata\Connection\AbstractConnection;
 
 /**
  * Base class for many other migrators providing a minimal implementation
@@ -12,58 +14,112 @@ use Doctrine\DBAL\Query\QueryBuilder;
 abstract class AbstractMigrator implements MigratorInterface
 {
     /**
-     * @var array|null rows to insert into target database
+     * @var array[] rows to insert into target database
      */
-    private ?array $data = null;
+    protected array $data;
 
     /**
-     * Get the data in the source database
+     * @var int number of rows already inserted
+     */
+    protected int $insertCount = 0;
+
+    /**
+     * @var int current batch number for pull operation
+     */
+    protected int $pullOffset = 0;
+
+    /**
+     * Gets all the rows at once by default
+     */
+    public function getPullBatchSize(): ?int
+    {
+        return null;
+    }
+
+    /**
+     * Gets the pull query and validates it
      *
      * @throws MigratorException
      */
-    protected function fetchData(Connection $source): void
+    protected function getPullQuery(Connection $source): QueryBuilder
     {
-        // Get SELECT query to fetch data from source
-        $pullQuery = $source->createQueryBuilder();
-        $pullQuery = $this->pullFromSource($pullQuery);
+        $queryBuilder = $source->createQueryBuilder();
+        $pullQuery = $this->pullFromSource($queryBuilder);
 
+        // must be a SELECT statement
         if ($pullQuery->getType() !== QueryBuilder::SELECT) {
             throw MigratorException::wrongQueryType('SELECT', 'pull');
         }
 
-        // Execute & fetch
-        $data = $pullQuery->execute();
-        $this->data = $data->fetchAll(FetchMode::ASSOCIATIVE);
+        return $pullQuery;
     }
 
+    /**
+     * Count the result rows of the SELECT statement
+     */
     public function getTotalRows(Connection $source): int
     {
-        if (null === $this->data) {
-            $this->fetchData($source);
-        }
-        return count($this->data);
+        // Get user query
+        $pullQuery = $this
+            ->getPullQuery($source)
+            ->getSQL();
+
+        // Build query to count total rows
+        $query = $source->createQueryBuilder()
+            ->select('COUNT(*)')
+            ->from(sprintf('(%s)', $pullQuery), 'user_query');
+
+        /** @var ResultStatement $result */
+        $result = $query->execute();
+        return $result->fetchColumn();
     }
 
     public function migrate(Connection $source, Connection $target): \Generator
     {
-        if (null === $this->data) {
-            $this->fetchData($source);
-        }
+        do {
+            $remainingRows = $this->pullBatch($source);
 
-        // Insert rows 1 by 1
-        $insertedRows = 0;
-        foreach ($this->data as $row) {
-            // Get INSERT query to fetch data from source
-            $pushQuery = $target->createQueryBuilder();
-            $pushQuery = $this->pushToTarget($pushQuery, $row);
+            // Insert rows 1 by 1
+            foreach ($this->data as $row) {
+                // Get INSERT query to fetch data from source
+                $pushQuery = $target->createQueryBuilder();
+                $pushQuery = $this->pushToTarget($pushQuery, $row);
 
-            if ($pushQuery->getType() !== QueryBuilder::INSERT) {
-                throw MigratorException::wrongQueryType('INSERT', 'push');
+                if ($pushQuery->getType() !== QueryBuilder::INSERT) {
+                    throw MigratorException::wrongQueryType('INSERT', 'push');
+                }
+
+                $this->insertCount += $pushQuery->execute();
+                yield $this->insertCount;
             }
+        } while ($remainingRows === true);
+    }
 
-            $insertedRows += $pushQuery->execute();
-            yield $insertedRows;
+    /**
+     * Executes the pull operation query to fetch specific amount of rows from source
+     *
+     * @return bool whether there is still data to fetch or not
+     */
+    protected function pullBatch(Connection $source): bool
+    {
+        // Build query with LIMIT clause
+        $pullQuery = $this->getPullQuery($source);
+        $batchSize = $this->getPullBatchSize();
+
+        if ($batchSize !== null && $batchSize > 0) {
+            $pullQuery
+                ->setFirstResult($batchSize * $this->pullOffset)
+                ->setMaxResults($batchSize);
+
+            $this->pullOffset++;
+        } else {
+            // No LIMIT clause (all rows fetched at once): do not reexecute the method
+            $remainingRows = false;
         }
+
+        $data = $pullQuery->execute();
+        $this->data = $data->fetchAll(FetchMode::ASSOCIATIVE);
+        return $remainingRows ?? $this->data !== [];
     }
 
     /**
