@@ -17,3 +17,8 @@ services:
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres
             POSTGRES_DB: fregata_target
+
+    adminer:
+        image: "adminer:4.7"
+        ports:
+            - 8080:8080
