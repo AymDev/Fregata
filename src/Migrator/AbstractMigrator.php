@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Query\QueryBuilder;
-use Fregata\Connection\AbstractConnection;
 
 /**
  * Base class for many other migrators providing a minimal implementation
@@ -90,6 +89,11 @@ abstract class AbstractMigrator implements MigratorInterface
                     throw MigratorException::wrongQueryType('INSERT', 'push');
                 }
 
+                if ($this instanceof PreservedKeyMigratorInterface) {
+                    $pushQuery->setValue(sprintf('fregata_pk_%s', $this->getSourceTable()), ':fregata_old_pk');
+                    $pushQuery->setParameter('fregata_old_pk', $row[$this->getPrimaryKeyColumnName()]);
+                }
+
                 $this->insertCount += $pushQuery->execute();
                 yield $this->insertCount;
             }
@@ -121,6 +125,46 @@ abstract class AbstractMigrator implements MigratorInterface
         $data = $pullQuery->execute();
         $this->data = $data->fetchAll(FetchMode::ASSOCIATIVE);
         return $remainingRows ?? $this->data !== [];
+    }
+
+    /**
+     * Get the new key based on a foreign key from a source database
+     *
+     * @param int|string  $key         original key value
+     * @param string      $targetTable table name in which the key is saved in the target database
+     * @param string|null $sourceTable original table name. Optional if same as in target database
+     *
+     * @return int|string|null the new key value
+     * @throws \Exception
+     */
+    protected function getForeignKey($key, string $targetTable, ?string $sourceTable = null)
+    {
+        // Get target table primary key
+        $newPrimaryKey = $this->getTargetConnection()
+            ->getConnection()
+            ->getSchemaManager()
+            ->listTableDetails($targetTable)
+            ->getPrimaryKeyColumns();
+
+        if (count($newPrimaryKey) > 1) {
+            throw new \Exception('Fregata does not support composite primary keys yet.');
+        }
+        $newPrimaryKey = $newPrimaryKey[0];
+
+        // Look up for a column target.fregata_pk_source
+        $sourceTable ??= $targetTable;
+        $oldPrimaryKey = sprintf('fregata_pk_%s', $sourceTable);
+
+        $qb = $this->getTargetConnection()->getConnection()->createQueryBuilder();
+        $qb
+            ->select($newPrimaryKey)
+            ->from($targetTable)
+            ->where(sprintf('%s = :old_key', $oldPrimaryKey))
+            ->setParameter('old_key', $key)
+        ;
+
+        $result = $qb->execute()->fetchColumn();
+        return $result !== false ? $result : null;
     }
 
     /**
