@@ -14,6 +14,8 @@ It runs with **Doctrine**'s [DBAL](https://www.doctrine-project.org/projects/dba
     2. [Migrator](#migrator)
         1. [Creating custom migrators](#creating-custom-migrators)
         2. [Using AbstractMigrator](#using-abstractmigrator)
+        3. [Batch fetching](#batch-fetching)
+        4. [Preserving foreign keys](#preserving-foreign-keys)
 2. [Usage](#usage)
     1. [Installation](#installation)
     2. [Using Fregata](#using-fregata)
@@ -55,14 +57,17 @@ You should have at least 2 *connections*:
 ## Migrator
 A *migrator* is a component which defines how to migrate data from a **source** to a **target**.
 Any *migrator* must define its **source** connection, and its **target** connection.
+>**Fregata** uses **PHP-DI** to autowire the migrators constructor arguments. 
+>You just have to inject your connections as dependencies.
 
 ### Creating custom migrators
 If the provided *migrators* don't fit your needs, 
 the only requirement to create your own is to implement `MigratorInterface` with the following methods:
 
- - `getSourceConnection()`: return source connection class name
- - `getTargetConnection()`: return target connection class name
- - `migrate()`: executes the migration
+ - `getSourceConnection()`: return source connection instance
+ - `getTargetConnection()`: return target connection instance
+ - `getTotalRows()`: return the total number of rows to insert
+ - `migrate()`: executes the migration. It must be a PHP Generator yielding the total number of rows actually inserted
 
 ### Using AbstractMigrator
 This is the only provided *migrator* at the moment. 
@@ -117,6 +122,43 @@ class MyMigrator extends AbstractMigrator
     }
 }
 ```
+
+### Batch fetching
+If for example a table has a huge number of rows, to avoid using too much memory at a time, it may be useful to fetch rows by batch of a desired size.
+
+Assuming you want **Fregata** to fetch 50 rows at a time, override the `AbstractMigrator::getPullBatchSize()` method:
+```php
+class MyMigrator extends AbstractMigrator
+{
+    // ...
+    
+    protected function getPullBatchSize(): ?int
+    {
+        return 50;
+    }
+}
+```
+
+### Preserving foreign keys
+To keep your foreign keys up to date after the data migration, you have to follow some steps.
+>**Warning**: this system does not support composite primary keys yet.
+
+The referenced table **migrator** must extend `AbstractMigrator` and implement the `PreservedKeyMigratorInterface` interface with the following methods:
+
+ - `getPrimaryKeyColumnName()`: the name of the column to keep
+ - `getSourceTable()`: name of the table in the source database
+ - `getTargetTable()`: name of the table in the target database
+
+**Fregata** will create a temporary column `fregata_pk_SOURCE-TABLE-NAME` into the target table.
+This column will be dropped when the complete migration is finished.
+>**Note:** As `AbstractMigrator` handles the value in the `INSERT` query using *named parameters*, your query must use only *named parameters*.
+
+The referencing table **migrator** must extend `AbstractMigrator` too.
+To get the new value of a foreign key, use the `getForeignKey()` method with:
+
+ - the old key value
+ - the referenced table name in the target database
+ - the referenced table name in the source database (optional, only needed if different from the target table name)
 
 # Usage
 

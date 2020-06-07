@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2020-06-07
+### Added
+ - service container (**PHP-DI**) to autowire migrators constructor arguments
+ - console command shows migration progress bar
+ - optional batch fetching for large datasets
+ - foreign key preservation system
+
 ## [0.2.0] - 2020-05-23
 ### Added
  - Composer package binary
@@ -16,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Connection abstract wrapper class
  - Migrator system with interface and abstract class
 
-[Unreleased]: https://github.com/AymDev/Fregata/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/AymDev/Fregata/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/AymDev/Fregata/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/AymDev/Fregata/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/AymDev/Fregata/releases/tag/v0.1.0
