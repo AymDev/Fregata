@@ -107,6 +107,7 @@ class MigrationCommand extends Command
             }
 
             $progressBar->finish();
+            $io->newLine(2);
         }
 
         $io->success('Migrated successfully !');

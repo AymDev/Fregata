@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2020-06-07
+### Fixed
+ - adds blank line in CLI output to avoid readability issues
+
 ## [0.3.0] - 2020-06-07
 ### Added
  - service container (**PHP-DI**) to autowire migrators constructor arguments
@@ -23,7 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Connection abstract wrapper class
  - Migrator system with interface and abstract class
 
-[Unreleased]: https://github.com/AymDev/Fregata/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/AymDev/Fregata/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/AymDev/Fregata/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/AymDev/Fregata/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/AymDev/Fregata/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/AymDev/Fregata/releases/tag/v0.1.0
