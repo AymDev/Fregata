@@ -13,12 +13,15 @@ use Doctrine\DBAL\DriverManager;
  */
 abstract class AbstractConnection
 {
+    private ?Connection $connection;
+
     /**
      * Get the database connection
      */
     public function getConnection(): Connection
     {
         $params = get_object_vars($this);
-        return DriverManager::getConnection($params);
+        $this->connection ??= DriverManager::getConnection($params);
+        return $this->connection;
     }
 }
