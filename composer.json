@@ -23,7 +23,9 @@
         "doctrine/dbal": "^2.10",
         "symfony/console": "^5.0",
         "symfony/yaml": "^5.0",
-        "php-di/php-di": "^6.1"
+        "php-di/php-di": "^6.1",
+        "symfony/config": "^5.2",
+        "symfony/dependency-injection": "^5.2"
     },
     "autoload": {
         "psr-4": {
