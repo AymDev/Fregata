@@ -1,0 +1,4 @@
+fregata:
+    migrations:
+        test:
+            migrators_directory: path/to/migrators
