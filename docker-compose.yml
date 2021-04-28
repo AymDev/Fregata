@@ -22,3 +22,14 @@ services:
         image: "adminer:4.7"
         ports:
             - 8080:8080
+
+    app:
+        build:
+            context: .
+        container_name: fregata_app
+        restart: on-failure
+        tty: true
+        stdin_open: true
+        network_mode: host
+        volumes:
+            - ./:/var/www/html
