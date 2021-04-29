@@ -3,6 +3,8 @@
 namespace Fregata\Console;
 
 use Fregata\Migrator\MigratorInterface;
+use hanneskod\classtools\Iterator\ClassIterator;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -87,93 +89,22 @@ class Configuration
      */
     private function getMigratorsInDirectory(): array
     {
-        // Get all PHP files in given directory
-        $directory = new \RecursiveDirectoryIterator($this->migrators_directory);
-        $iterator = new \RecursiveIteratorIterator($directory);
-        $regex = new \RegexIterator($iterator, '~^.+\.php$~i', \RecursiveRegexIterator::GET_MATCH);
+        $finder = new Finder();
+        $iterator = new ClassIterator($finder->in($this->migrators_directory));
+        $iterator->enableAutoloading();
+
+        $iterator = $iterator->type(MigratorInterface::class);
+
+        /** @var ClassIterator $iterator */
+        $iterator = $iterator->where('isInstantiable', true);
 
         $classes = [];
-        foreach ($regex as $file) {
-            $filepath = $file[0];
-            $className = $this->getClassInFile($filepath);
 
-            // Save class name if it implements MigratorInterface
-            if (null !== $className && in_array(MigratorInterface::class, class_implements($className))) {
-                $classes[] = $className;
-            }
+        /** @var \ReflectionClass $class */
+        foreach ($iterator as $class) {
+            $classes[] = $class->getName();
         }
 
         return $classes;
-    }
-
-    /**
-     * Checks if a file contains a class and returns its name
-     */
-    private function getClassInFile(string $filepath): ?string
-    {
-        // PHP Tokens for given file, excluding single chars
-        $tokens = token_get_all(file_get_contents($filepath));
-        $tokens = array_values(array_filter($tokens, 'is_array'));
-
-        /**
-         * States for namespace parsing:
-         *      T_NAMESPACE --> T_WHITESPACE --> T_STRING --> END
-         *                                         ^    |
-         *                                         |    v
-         *                                       T_NS_SEPARATOR
-         */
-        $parsing_namespace = false;
-        $namespace = [];
-
-        /**
-         * States for class parsing:
-         *      ! T_ABSTRACT --> ? T_WHITESPACE --> T_CLASS --> T_WHITESPACE --> T_STRING --> END
-         */
-        $class = null;
-
-        for ($i = 1; $i < count($tokens); $i++) {
-            $prev = $tokens[$i - 1];
-            $token = $tokens[$i];
-
-            // Start parsing namespace
-            if ($token[0] === T_WHITESPACE && $prev[0] === T_NAMESPACE) {
-                $parsing_namespace = true;
-                continue;
-            }
-
-            // Parse namespace
-            if ($parsing_namespace) {
-                // Token is namespace or separator
-                if ($token[0] === T_STRING || $token[0] === T_NS_SEPARATOR) {
-                    $namespace[] = $token[1];
-                } else {
-                    // Finished parsing namespace
-                    $parsing_namespace = false;
-                }
-                continue;
-            }
-
-            // Get class
-            $is_before_classname = $token[0] === T_WHITESPACE
-                && $prev[0] === T_CLASS;
-
-            $is_not_abstract_class = false === isset($tokens[$i - 3])
-                || $tokens[$i - 3][0] !== T_ABSTRACT;
-
-            $has_classname_after = isset($tokens[$i + 1])
-                && $tokens[$i + 1][0] === T_STRING;
-
-            if ($is_before_classname && $is_not_abstract_class && $has_classname_after) {
-                $class = $tokens[$i + 1][1];
-                break;
-            }
-        }
-
-        if (null !== $class && [] !== $namespace) {
-            $namespace = trim(implode('', $namespace), '\\');
-            $class = implode('\\', [$namespace, $class]);
-        }
-
-        return $class;
     }
 }

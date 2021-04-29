@@ -25,7 +25,8 @@
         "symfony/yaml": "^5.0",
         "php-di/php-di": "^6.1",
         "symfony/config": "^5.2",
-        "symfony/dependency-injection": "^5.2"
+        "symfony/dependency-injection": "^5.2",
+        "hanneskod/classtools": "^1.2"
     },
     "autoload": {
         "psr-4": {
