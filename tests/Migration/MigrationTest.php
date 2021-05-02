@@ -6,6 +6,9 @@ use Fregata\Migration\Migration;
 use Fregata\Migration\MigrationException;
 use Fregata\Migration\Migrator\DependentMigratorInterface;
 use Fregata\Migration\Migrator\MigratorInterface;
+use Fregata\Migration\Migrator\Component\PullerInterface;
+use Fregata\Migration\Migrator\Component\PusherInterface;
+use Fregata\Migration\Migrator\Component\Executor;
 use PHPUnit\Framework\TestCase;
 
 class MigrationTest extends TestCase
@@ -108,10 +111,9 @@ class CircularFirstMigrator implements DependentMigratorInterface
         return [CircularSecondMigrator::class];
     }
 
-    public function migrate(): \Generator
-    {
-        yield null;
-    }
+    public function getPuller(): ?PullerInterface {}
+    public function getPusher(): PusherInterface {}
+    public function getExecutor(): Executor {}
 }
 
 class CircularSecondMigrator implements DependentMigratorInterface
@@ -121,8 +123,7 @@ class CircularSecondMigrator implements DependentMigratorInterface
         return [CircularFirstMigrator::class];
     }
 
-    public function migrate(): \Generator
-    {
-        yield null;
-    }
+    public function getPuller(): ?PullerInterface {}
+    public function getPusher(): PusherInterface {}
+    public function getExecutor(): Executor {}
 }

@@ -2,15 +2,28 @@
 
 namespace Fregata\Migration\Migrator;
 
+use Fregata\Migration\Migrator\Component\Executor;
+use Fregata\Migration\Migrator\Component\PullerInterface;
+use Fregata\Migration\Migrator\Component\PusherInterface;
+
 /**
- * A migrator pulls data from a source and pushes it to a target
+ * A migrator holds component to pull data from a source and to push it to a target
  * Any migrator must implement this interface
  */
 interface MigratorInterface
 {
     /**
-     * Executes the migration process
-     * @return \Generator|int[] number of items migrated
+     * Return the puller responsible of the data retrieval
      */
-    public function migrate(): \Generator;
+    public function getPuller(): ?PullerInterface;
+
+    /**
+     * Return the pusher responsible for the data insertion
+     */
+    public function getPusher(): PusherInterface;
+
+    /**
+     * Return the executor responsible for the migration process
+     */
+    public function getExecutor(): Executor;
 }
