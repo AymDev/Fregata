@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "eb2bf84d7be35e7e4977eeb3681d1e5f",
+    "content-hash": "1ec32f557738e133239bc3f5d3b22ca7",
     "packages": [
         {
             "name": "doctrine/cache",
@@ -379,6 +379,68 @@
             ],
             "abandoned": "opis/closure",
             "time": "2018-03-21T22:21:57+00:00"
+        },
+        {
+            "name": "marcj/topsort",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/marcj/topsort.php.git",
+                "reference": "972f58e42b5f110a0a1d8433247f65248abcfd5c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/marcj/topsort.php/zipball/972f58e42b5f110a0a1d8433247f65248abcfd5c",
+                "reference": "972f58e42b5f110a0a1d8433247f65248abcfd5c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.3"
+            },
+            "require-dev": {
+                "codeclimate/php-test-reporter": "dev-master",
+                "phpunit/phpunit": "^9",
+                "symfony/console": "~2.5 || ~3.0 || ~4.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "MJS\\TopSort\\": "src/",
+                    "MJS\\TopSort\\Tests\\": "tests/Tests/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Marc J. Schmidt",
+                    "email": "marc@marcjschmidt.de"
+                }
+            ],
+            "description": "High-Performance TopSort/Dependency resolving algorithm",
+            "keywords": [
+                "dependency resolving",
+                "topological sort",
+                "topsort"
+            ],
+            "support": {
+                "issues": "https://github.com/marcj/topsort.php/issues",
+                "source": "https://github.com/marcj/topsort.php/tree/2.0.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/marcj",
+                    "type": "github"
+                }
+            ],
+            "time": "2020-09-24T12:39:55+00:00"
         },
         {
             "name": "nikic/php-parser",
