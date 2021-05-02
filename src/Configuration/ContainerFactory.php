@@ -73,7 +73,6 @@ class ContainerFactory
 
         // register migration services
         $containerBuilder->registerExtension(new FregataExtension());
-        $containerBuilder->addCompilerPass(new MigrationsCompilerPass());
 
         return $containerBuilder;
     }
