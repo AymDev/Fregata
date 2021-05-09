@@ -1,0 +1,146 @@
+<?php
+
+namespace Fregata\Configuration;
+
+use Symfony\Component\Config\ConfigCache;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+
+/**
+ * The Fregata application Kernel handles service container configuration
+ * You must extend this class as App\FregataKernel in order to use the Fregata binary
+ */
+abstract class AbstractFregataKernel
+{
+    private const CONTAINER_CLASS_NAME = 'FregataCachedContainer';
+    private ?Container $container = null;
+
+    /**
+     * Get the configuration directory location
+     */
+    abstract protected function getConfigurationDirectory(): string;
+
+    /**
+     * Get the cache directory location
+     */
+    abstract protected function getCacheDirectory(): string;
+
+
+    /**
+     * Creates a cached service container to use in a standalone Fregata project where no other container exists
+     * @throws ConfigurationException
+     * @throws \Exception
+     */
+    public function getContainer(): Container
+    {
+        if (null === $this->container) {
+            // TODO: manage environments to make the debug mode dynamic
+            $containerLocation = $this->getCachedContainerLocation();
+            $containerConfigCache = new ConfigCache($containerLocation, true);
+
+            // Create the container
+            if (false === $containerConfigCache->isFresh()) {
+                $containerBuilder = $this->createContainer();
+                $this->dumpCachedContainer($containerBuilder);
+            }
+
+            // Load and start the container
+            require_once $containerLocation;
+            $this->container =  new \Fregata\FregataCachedContainer();
+        }
+
+        return $this->container;
+    }
+
+    /**
+     * Builds the path to the cached service container and checks the cache directory path
+     * @throws ConfigurationException
+     */
+    private function getCachedContainerLocation(): string
+    {
+        if (false === is_dir($this->getCacheDirectory())) {
+            $cacheDirectory = realpath($this->getCacheDirectory()) ?: $this->getCacheDirectory();
+            throw ConfigurationException::invalidCacheDirectory($cacheDirectory);
+        }
+
+        return $this->getCacheDirectory() . DIRECTORY_SEPARATOR . self::CONTAINER_CLASS_NAME . '.php';
+    }
+
+    /**
+     * Creates a service container
+     * @throws ConfigurationException
+     * @throws \Exception
+     */
+    private function createContainer(): ContainerBuilder
+    {
+        $containerBuilder = new ContainerBuilder();
+
+        // Set configuration directory of the application
+        if (false === is_dir($this->getConfigurationDirectory())) {
+            $configurationDirectory = realpath($this->getConfigurationDirectory()) ?: $this->getConfigurationDirectory();
+            throw ConfigurationException::invalidConfigurationDirectory($configurationDirectory);
+        }
+        $containerBuilder->setParameter('fregata.config_dir', $this->getConfigurationDirectory());
+
+        // Register main services
+        $this->loadMainServices($containerBuilder);
+
+        // register migration services
+        $containerBuilder->registerExtension(new FregataExtension());
+        $containerBuilder->addCompilerPass(new CommandsCompilerPass());
+
+        return $containerBuilder;
+    }
+
+    /**
+     * Load the main services definitions file of the application if it exists
+     * @throws \Exception
+     */
+    private function loadMainServices(ContainerBuilder $container): void
+    {
+        $directory = $container->getParameter('fregata.config_dir');
+        $fileLocator = new FileLocator($directory);
+
+        $loader = new YamlFileLoader($container, $fileLocator);
+        $loader->import('/*.yaml');
+    }
+
+    /**
+     * Dumps the container
+     * @throws ConfigurationException
+     */
+    private function dumpCachedContainer(ContainerBuilder $container): void
+    {
+        $container->compile();
+
+        // Dump the cache version
+        $dumper = new PhpDumper($container);
+        $containerContent = $dumper->dump([
+            'namespace' => 'Fregata',
+            'class'     => 'FregataCachedContainer',
+        ]);
+
+        file_put_contents($this->getCachedContainerLocation(), $containerContent);
+    }
+
+    /**
+     * Create a kernel with default configuration
+     */
+    public static function createDefaultKernel(): self
+    {
+        return new class extends AbstractFregataKernel {
+            protected function getConfigurationDirectory(): string
+            {
+                return __DIR__ . '/../../../../config';
+            }
+
+            protected function getCacheDirectory(): string
+            {
+                return __DIR__ . '/../../../../cache';
+            }
+        };
+    }
+}
