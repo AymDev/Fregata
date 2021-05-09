@@ -21,7 +21,7 @@
     "require": {
         "php": ">=7.4",
         "doctrine/dbal": "^2.10",
-        "symfony/console": "^5.0",
+        "symfony/console": "^5.2",
         "symfony/yaml": "^5.0",
         "php-di/php-di": "^6.1",
         "symfony/config": "^5.2",
