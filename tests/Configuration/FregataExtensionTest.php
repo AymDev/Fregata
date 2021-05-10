@@ -9,6 +9,7 @@ use Fregata\Migration\Migrator\Component\Executor;
 use Fregata\Migration\Migrator\Component\PullerInterface;
 use Fregata\Migration\Migrator\Component\PusherInterface;
 use Fregata\Migration\Migrator\MigratorInterface;
+use Fregata\Migration\TaskInterface;
 use Fregata\Tests\Configuration\Fixtures\ExtensionTestDirectoryMigrator;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -59,6 +60,62 @@ class FregataExtensionTest extends TestCase
         self::assertTrue($container->has(ExtensionTestDirectoryMigrator::class));
         self::assertTrue($container->has(ExtensionTestMigrator::class));
     }
+
+    /**
+     * Before tasks must be defined
+     */
+    public function testBeforeTaskDefinitions()
+    {
+        $container = new ContainerBuilder();
+        $extension = new FregataExtension();
+
+        $configuration = [
+            'migrations' => [
+                'test_migration' => [
+                    'tasks' => [
+                        'before' => [
+                            ExtensionTestTask::class,
+                        ]
+                    ]
+                ]
+            ]
+        ];
+        $extension->load([$configuration], $container);
+
+        // Migration
+        self::assertTrue($container->has('fregata.migration.test_migration'));
+
+        // Task
+        self::assertTrue($container->has(ExtensionTestTask::class));
+    }
+
+    /**
+     * After tasks must be defined
+     */
+    public function testAfterTaskDefinitions()
+    {
+        $container = new ContainerBuilder();
+        $extension = new FregataExtension();
+
+        $configuration = [
+            'migrations' => [
+                'test_migration' => [
+                    'tasks' => [
+                        'after' => [
+                            ExtensionTestTask::class,
+                        ]
+                    ]
+                ]
+            ]
+        ];
+        $extension->load([$configuration], $container);
+
+        // Migration
+        self::assertTrue($container->has('fregata.migration.test_migration'));
+
+        // Task
+        self::assertTrue($container->has(ExtensionTestTask::class));
+    }
 }
 
 /**
@@ -70,4 +127,14 @@ class ExtensionTestMigrator implements MigratorInterface
     public function getPuller(): ?PullerInterface {}
     public function getPusher(): PusherInterface {}
     public function getExecutor(): Executor {}
+}
+
+/**
+ * Mock
+ * @see FregataExtensionTest::testBeforeTaskDefinitions
+ * @see FregataExtensionTest::testAfterTaskDefinitions
+ */
+class ExtensionTestTask implements TaskInterface
+{
+    public function execute(): ?string {}
 }

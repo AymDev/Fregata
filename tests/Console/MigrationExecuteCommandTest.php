@@ -9,6 +9,7 @@ use Fregata\Migration\Migrator\Component\Executor;
 use Fregata\Migration\Migrator\Component\PullerInterface;
 use Fregata\Migration\Migrator\Component\PusherInterface;
 use Fregata\Migration\Migrator\MigratorInterface;
+use Fregata\Migration\TaskInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -19,9 +20,13 @@ class MigrationExecuteCommandTest extends TestCase
      */
     public function testExecution()
     {
+        $task = new MigrationExecuteCommandTask();
         $migrator = new MigrationExecuteCommandMigrator();
+
         $migration = new Migration();
         $migration->add($migrator);
+        $migration->addBeforeTask($task);
+        $migration->addAfterTask($task);
 
         $registry = new MigrationRegistry();
         $registry->add('test-migration', $migration);
@@ -42,6 +47,14 @@ class MigrationExecuteCommandTest extends TestCase
         self::assertStringContainsString(MigrationExecuteCommandMigrator::class, $tester->getDisplay());
         self::assertStringContainsString(
             sprintf('%1$d / %1$d', count($migrator->getPuller()->data)),
+            $tester->getDisplay()
+        );
+
+        // Tasks are shown in order
+        $taskClass = preg_quote(MigrationExecuteCommandTask::class);
+        $migratorClass = preg_quote(MigrationExecuteCommandMigrator::class);
+        self::assertMatchesRegularExpression(
+            '~Before.+' . $taskClass . '.+Migrators.+' . $migratorClass . '.+' . $taskClass . '~is',
             $tester->getDisplay()
         );
 
@@ -133,5 +146,12 @@ class MigrationExecuteCommandMigrator implements MigratorInterface {
     public function getExecutor(): Executor
     {
         return new Executor();
+    }
+}
+
+class MigrationExecuteCommandTask implements TaskInterface {
+    public function execute(): ?string
+    {
+        return '[EXECUTED]';
     }
 }

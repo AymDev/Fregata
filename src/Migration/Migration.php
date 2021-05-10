@@ -18,6 +18,12 @@ class Migration
     /** @var MigratorInterface[] */
     private array $migrators = [];
 
+    /** @var TaskInterface[] */
+    private array $beforeTasks = [];
+
+    /** @var TaskInterface[] */
+    private array $afterTasks = [];
+
     /**
      * Register a new migrator
      * @throws MigrationException
@@ -43,6 +49,40 @@ class Migration
             $this->sort();
         }
         return $this->migrators;
+    }
+
+    /**
+     * Add a task to execute before the migration
+     */
+    public function addBeforeTask(TaskInterface $task): void
+    {
+        $this->beforeTasks[] = $task;
+    }
+
+    /**
+     * List tasks to execute before the migration
+     * @return TaskInterface[]
+     */
+    public function getBeforeTasks(): array
+    {
+        return $this->beforeTasks;
+    }
+
+    /**
+     * Add a task to execute after the migration
+     */
+    public function addAfterTask(TaskInterface $task): void
+    {
+        $this->afterTasks[] = $task;
+    }
+
+    /**
+     * List tasks to execute after the migration
+     * @return TaskInterface[]
+     */
+    public function getAfterTasks(): array
+    {
+        return $this->afterTasks;
     }
 
     /**

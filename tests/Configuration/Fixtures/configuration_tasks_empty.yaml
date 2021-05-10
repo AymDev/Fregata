@@ -1,0 +1,4 @@
+fregata:
+    migrations:
+        test:
+            tasks:

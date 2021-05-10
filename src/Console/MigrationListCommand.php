@@ -14,10 +14,12 @@ class MigrationListCommand extends Command
 {
     protected static $defaultName = 'migration:list';
     private MigrationRegistry $migrationRegistry;
+    private CommandHelper $commandHelper;
 
-    public function __construct(MigrationRegistry $migrationRegistry)
+    public function __construct(MigrationRegistry $migrationRegistry, CommandHelper $commandHelper)
     {
         $this->migrationRegistry = $migrationRegistry;
+        $this->commandHelper = $commandHelper;
 
         parent::__construct();
     }
@@ -33,6 +35,12 @@ class MigrationListCommand extends Command
                 InputOption::VALUE_NONE,
                 'Lists the migrators associated with each migration.'
             )
+            ->addOption(
+                'with-tasks',
+                't',
+                InputOption::VALUE_NONE,
+                'Lists the before and after tasks associated with each migration.'
+            )
         ;
     }
 
@@ -46,17 +54,14 @@ class MigrationListCommand extends Command
         foreach ($migrations as $name => $migration) {
             $io->writeln($name);
 
+            if ($input->getOption('with-tasks')) {
+                $this->commandHelper->printObjectTable($io, $migration->getBeforeTasks(), 'Before Task');
+            }
             if ($input->getOption('with-migrators')) {
-                $migrators = array_map(
-                    fn(int $key, MigratorInterface $migrator) => [$key, get_class($migrator)],
-                    array_keys($migration->getMigrators()),
-                    $migration->getMigrators()
-                );
-
-                $io->table(
-                    ['#', 'Class name'],
-                    $migrators
-                );
+                $this->commandHelper->printObjectTable($io, $migration->getMigrators(), 'Migrator Name');
+            }
+            if ($input->getOption('with-tasks')) {
+                $this->commandHelper->printObjectTable($io, $migration->getAfterTasks(), 'After Task');
             }
         }
 

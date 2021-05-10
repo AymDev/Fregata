@@ -2,6 +2,7 @@
 
 namespace Fregata\Tests\Console;
 
+use Fregata\Console\CommandHelper;
 use Fregata\Console\MigrationListCommand;
 use Fregata\Migration\Migration;
 use Fregata\Migration\MigrationRegistry;
@@ -9,6 +10,7 @@ use Fregata\Migration\Migrator\Component\Executor;
 use Fregata\Migration\Migrator\Component\PullerInterface;
 use Fregata\Migration\Migrator\Component\PusherInterface;
 use Fregata\Migration\Migrator\MigratorInterface;
+use Fregata\Migration\TaskInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -25,7 +27,7 @@ class MigrationListCommandTest extends TestCase
         $registry->add('foo', new Migration());
         $registry->add('bar', new Migration());
 
-        $command = new MigrationListCommand($registry);
+        $command = new MigrationListCommand($registry, new CommandHelper());
         $tester = new CommandTester($command);
 
         $tester->execute([]);
@@ -55,7 +57,7 @@ class MigrationListCommandTest extends TestCase
         $registry = new MigrationRegistry();
         $registry->add('foo', $migration);
 
-        $command = new MigrationListCommand($registry);
+        $command = new MigrationListCommand($registry, new CommandHelper());
         $tester = new CommandTester($command);
 
         $tester->execute([
@@ -68,6 +70,35 @@ class MigrationListCommandTest extends TestCase
         $secondClass = preg_quote(MigrationListCommandSecondMigrator::class, '~');
         self::assertMatchesRegularExpression(
             '~0\s+' . $firstClass . '\s+\R\s+1\s+' . $secondClass . '\s+\R~',
+            $display
+        );
+    }
+
+    /**
+     * The --with-tasks option must list before and after tasks
+     */
+    public function testListMigrationsWithTasks()
+    {
+        $migration = new Migration();
+        $migration->addBeforeTask(new MigrationListCommandBeforeTask());
+        $migration->addAfterTask(new MigrationListCommandAfterTask());
+
+        $registry = new MigrationRegistry();
+        $registry->add('foo', $migration);
+
+        $command = new MigrationListCommand($registry, new CommandHelper());
+        $tester = new CommandTester($command);
+
+        $tester->execute([
+            '--with-tasks' => null,
+        ]);
+        $display = $tester->getDisplay();
+
+        // Get table data lines
+        $firstClass = preg_quote(MigrationListCommandBeforeTask::class, '~');
+        $secondClass = preg_quote(MigrationListCommandAfterTask::class, '~');
+        self::assertMatchesRegularExpression(
+            '~0\s+' . $firstClass . '\s+\R.+0\s+' . $secondClass . '\s+\R~s',
             $display
         );
     }
@@ -84,3 +115,15 @@ class MigrationListCommandFirstMigrator implements MigratorInterface {
 }
 
 class MigrationListCommandSecondMigrator extends MigrationListCommandFirstMigrator {}
+
+/**
+ * Mocks
+ * @see MigrationListCommandTest::testListMigrationsWithTasks()
+ */
+class MigrationListCommandBeforeTask implements TaskInterface {
+    public function execute(): ?string {}
+}
+
+class MigrationListCommandAfterTask implements TaskInterface {
+    public function execute(): ?string {}
+}

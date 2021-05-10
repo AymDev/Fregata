@@ -31,6 +31,20 @@ class ConfigurationTest extends TestCase
                 self::assertIsArray($migration['migrators']);
                 self::assertContainsOnly('string', $migration['migrators']);
             }
+
+            if (array_key_exists('tasks', $migration)) {
+                self::assertIsArray($migration['tasks']);
+
+                if (array_key_exists('before', $migration['tasks'])) {
+                    self::assertIsArray($migration['tasks']['before']);
+                    self::assertContainsOnly('string', $migration['tasks']['before']);
+                }
+
+                if (array_key_exists('after', $migration['tasks'])) {
+                    self::assertIsArray($migration['tasks']['after']);
+                    self::assertContainsOnly('string', $migration['tasks']['after']);
+                }
+            }
         }
     }
 

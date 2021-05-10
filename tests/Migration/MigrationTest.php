@@ -9,6 +9,7 @@ use Fregata\Migration\Migrator\MigratorInterface;
 use Fregata\Migration\Migrator\Component\PullerInterface;
 use Fregata\Migration\Migrator\Component\PusherInterface;
 use Fregata\Migration\Migrator\Component\Executor;
+use Fregata\Migration\TaskInterface;
 use PHPUnit\Framework\TestCase;
 
 class MigrationTest extends TestCase
@@ -97,6 +98,24 @@ class MigrationTest extends TestCase
         $migration->add($migrator);
 
         $migration->getMigrators();
+    }
+
+    /**
+     * Tasks management
+     */
+    public function testCanAddTasks()
+    {
+        $migration = new Migration();
+        self::assertCount(0, $migration->getBeforeTasks());
+        self::assertCount(0, $migration->getAfterTasks());
+
+        $migration->addBeforeTask($this->createMock(TaskInterface::class));
+        self::assertCount(1, $migration->getBeforeTasks());
+        self::assertCount(0, $migration->getAfterTasks());
+
+        $migration->addAfterTask($this->createMock(TaskInterface::class));
+        self::assertCount(1, $migration->getBeforeTasks());
+        self::assertCount(1, $migration->getAfterTasks());
     }
 }
 

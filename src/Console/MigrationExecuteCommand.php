@@ -4,6 +4,7 @@ namespace Fregata\Console;
 
 use Fregata\Migration\MigrationRegistry;
 use Fregata\Migration\Migrator\MigratorInterface;
+use Fregata\Migration\TaskInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,6 +15,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class MigrationExecuteCommand extends Command
 {
+    /**
+     * \33[2K erases the current line
+     * \r moves the cursor the begining of the line
+     */
+    private const LINE_ERASER = "\33[2K\r";
     protected static $defaultName = 'migration:show';
     private MigrationRegistry $migrationRegistry;
 
@@ -71,7 +77,19 @@ class MigrationExecuteCommand extends Command
         $migrators = $migration->getMigrators();
         $io->success(sprintf('Starting "%s" migration: %s migrators', $migrationName, count($migrators)));
 
+        // Run before tasks
+        if (0 !== count($migration->getBeforeTasks())) {
+            $io->title(sprintf('Before tasks: %d', count($migration->getBeforeTasks())));
+
+            foreach ($migration->getBeforeTasks() as $task) {
+                $this->runTask($io, $task);
+            }
+            $io->newLine();
+        }
+
         // Run migrators
+        $io->title(sprintf('Migrators: %d', count($migrators)));
+
         foreach ($migrators as $key => $migrator) {
             $puller = $migrator->getPuller();
             $totalItems = null === $puller ? null : $puller->count();
@@ -82,6 +100,16 @@ class MigrationExecuteCommand extends Command
                 $this->runMigratorWithProgressBar($io, $migrator, $totalItems, $key);
             } else {
                 $this->runMigratorWithoutProgressBar($io, $output, $migrator, $key);
+            }
+            $io->newLine();
+        }
+
+        // Run before tasks
+        if (0 !== count($migration->getAfterTasks())) {
+            $io->title(sprintf('After tasks: %d', count($migration->getAfterTasks())));
+
+            foreach ($migration->getAfterTasks() as $task) {
+                $this->runTask($io, $task);
             }
             $io->newLine();
         }
@@ -105,12 +133,7 @@ class MigrationExecuteCommand extends Command
 
         foreach ($migrator->getExecutor()->execute($migrator->getPuller(), $migrator->getPusher()) as $pushedItemCount) {
             $totalPushCount += $pushedItemCount;
-
-            /*
-             * \33[2K erases the current line
-             * \r moves the cursor the begining of the line
-             */
-            $io->write(sprintf('%s %d', "\33[2K\r", $totalPushCount));
+            $io->write(sprintf('%s %d', self::LINE_ERASER, $totalPushCount));
 
             if (null !== $itemCount) {
                 $io->write(sprintf(' / %d', $itemCount));
@@ -158,5 +181,17 @@ class MigrationExecuteCommand extends Command
             $totalPushCount += $pushedItemCount;
             $section->overwrite(sprintf('Migrated items: %d', $totalPushCount));
         }
+    }
+
+    /**
+     * Execute a before / after task
+     */
+    private function runTask(SymfonyStyle $io, TaskInterface $task): void
+    {
+        $io->write(sprintf(' %s : ...', get_class($task)));
+        $result = $task->execute();
+
+        $io->write(sprintf('%s %s : %s', self::LINE_ERASER, get_class($task), $result ?? 'OK'));
+        $io->newLine();
     }
 }

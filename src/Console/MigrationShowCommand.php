@@ -15,10 +15,12 @@ class MigrationShowCommand extends Command
 {
     protected static $defaultName = 'migration:show';
     private MigrationRegistry $migrationRegistry;
+    private CommandHelper $commandHelper;
 
-    public function __construct(MigrationRegistry $migrationRegistry)
+    public function __construct(MigrationRegistry $migrationRegistry, CommandHelper $commandHelper)
     {
         $this->migrationRegistry = $migrationRegistry;
+        $this->commandHelper = $commandHelper;
 
         parent::__construct();
     }
@@ -32,6 +34,12 @@ class MigrationShowCommand extends Command
                 'migration',
                 InputArgument::REQUIRED,
                 'The name of the migration.'
+            )
+            ->addOption(
+                'with-tasks',
+                't',
+                InputOption::VALUE_NONE,
+                'Lists the before and after tasks associated with each migration.'
             )
         ;
     }
@@ -51,16 +59,15 @@ class MigrationShowCommand extends Command
         $migrators = $migration->getMigrators();
         $io->title(sprintf('%s : %d migrators', $migrationName, count($migrators)));
 
-        $migrators = array_map(
-            fn(int $key, MigratorInterface $migrator) => [$key, get_class($migrator)],
-            array_keys($migration->getMigrators()),
-            $migration->getMigrators()
-        );
+        if ($input->getOption('with-tasks')) {
+            $this->commandHelper->printObjectTable($io, $migration->getBeforeTasks(), 'Before Task');
+        }
 
-        $io->table(
-            ['#', 'Class name'],
-            $migrators
-        );
+        $this->commandHelper->printObjectTable($io, $migration->getMigrators(), 'Migrator Name');
+
+        if ($input->getOption('with-tasks')) {
+            $this->commandHelper->printObjectTable($io, $migration->getAfterTasks(), 'After Task');
+        }
 
         $io->newLine();
         return 0;

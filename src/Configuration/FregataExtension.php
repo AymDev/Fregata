@@ -66,6 +66,26 @@ class FregataExtension extends Extension
             $migration->addMethodCall('add', [new Reference($migratorClass)]);
         }
 
+        // Before tasks
+        if (null !== $migrationConfig['tasks']['before']) {
+            foreach ($migrationConfig['tasks']['before'] as $beforeTaskClass) {
+                $task = new Definition($beforeTaskClass);
+                $container->setDefinition($beforeTaskClass, $task);
+
+                $migration->addMethodCall('addBeforeTask', [new Reference($beforeTaskClass)]);
+            }
+        }
+
+        // After tasks
+        if (null !== $migrationConfig['tasks']['after']) {
+            foreach ($migrationConfig['tasks']['after'] as $afterTaskClass) {
+                $task = new Definition($afterTaskClass);
+                $container->setDefinition($afterTaskClass, $task);
+
+                $migration->addMethodCall('addAfterTask', [new Reference($afterTaskClass)]);
+            }
+        }
+
         // Add migration to the registry
         $migrationId = 'fregata.migration.' . $migrationConfig['name'];
         $container->setDefinition($migrationId, $migration);

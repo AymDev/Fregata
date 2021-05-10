@@ -1,0 +1,8 @@
+fregata:
+    migrations:
+        test:
+            tasks:
+                before:
+                    - foo
+                    - bar
+                    - baz
