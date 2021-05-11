@@ -23,6 +23,10 @@ class ConfigurationTest extends TestCase
         self::assertIsArray($processedConfiguration['migrations']);
 
         foreach ($processedConfiguration['migrations'] as $migration) {
+            if (array_key_exists('options', $migration)) {
+                self::assertIsArray($migration['options']);
+            }
+
             if (array_key_exists('migrators_directory', $migration)) {
                 self::assertIsString($migration['migrators_directory']);
             }

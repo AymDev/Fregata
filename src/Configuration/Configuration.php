@@ -17,6 +17,7 @@ class Configuration implements ConfigurationInterface
                 ->useAttributeAsKey('name')
                     ->arrayPrototype()
                         ->children()
+                            ->variableNode('options')->end()
                             ->scalarNode('migrators_directory')->end()
                             ->arrayNode('migrators')
                                 ->scalarPrototype()->end()

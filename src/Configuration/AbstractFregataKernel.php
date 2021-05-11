@@ -85,12 +85,12 @@ abstract class AbstractFregataKernel
         }
         $containerBuilder->setParameter('fregata.config_dir', $this->getConfigurationDirectory());
 
-        // Register main services
-        $this->loadMainServices($containerBuilder);
-
         // register migration services
         $containerBuilder->registerExtension(new FregataExtension());
         $containerBuilder->addCompilerPass(new CommandsCompilerPass());
+
+        // Register main services
+        $this->loadMainServices($containerBuilder);
 
         return $containerBuilder;
     }
@@ -105,7 +105,8 @@ abstract class AbstractFregataKernel
         $fileLocator = new FileLocator($directory);
 
         $loader = new YamlFileLoader($container, $fileLocator);
-        $loader->import('/*.yaml');
+        $loader->import('services.yaml', null, 'not_found');
+        $loader->import('fregata.yaml', null, 'not_found');
     }
 
     /**

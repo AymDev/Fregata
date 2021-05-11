@@ -26,6 +26,7 @@ class CommandsCompilerPass implements CompilerPassInterface
     public function process(ContainerBuilder $container)
     {
         $applicationDefinition = new Definition(Application::class);
+        $applicationDefinition->setPublic(true);
 
         foreach (self::COMMAND_CLASSES as $commandClass) {
             $container->setDefinition($commandClass, new Definition($commandClass));

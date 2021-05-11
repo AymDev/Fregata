@@ -3,15 +3,18 @@
 namespace Fregata\Configuration;
 
 use Fregata\Migration\Migration;
+use Fregata\Migration\MigrationContext;
 use Fregata\Migration\MigrationRegistry;
 use Fregata\Migration\Migrator\MigratorInterface;
 use hanneskod\classtools\Iterator\ClassIterator;
+use Symfony\Component\DependencyInjection\Argument\BoundArgument;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\String\UnicodeString;
 
 /**
  * @internal
@@ -34,8 +37,10 @@ class FregataExtension extends Extension
     private function createServiceDefinitions(ContainerBuilder $container): void
     {
         // Migration registry
+        $registryDefinition = new Definition(MigrationRegistry::class);
+        $container->setDefinition('fregata.migration_registry', $registryDefinition);
         $container
-            ->setDefinition('fregata.migration_registry', new Definition(MigrationRegistry::class))
+            ->setDefinition(MigrationRegistry::class, $registryDefinition)
             ->setPublic(true)
         ;
 
@@ -48,53 +53,67 @@ class FregataExtension extends Extension
 
     private function registerMigration(ContainerBuilder $container, array $migrationConfig): void
     {
-        // Migrators classes
-        $migratorClasses = [];
+        // Migration definition
+        $migrationDefinition = new ChildDefinition('fregata.migration');
+        $migrationId = 'fregata.migration.' . $migrationConfig['name'];
+        $container->setDefinition($migrationId, $migrationDefinition);
+
+        // Add migration to the registry
+        $registry = $container->getDefinition('fregata.migration_registry');
+        $registry->addMethodCall('add', [
+            $migrationConfig['name'],
+            new Reference($migrationId)
+        ]);
+
+        // Migration context
+        $contextDefinition = new Definition(MigrationContext::class);
+        $contextDefinition->setArguments([
+            new Reference($migrationId),
+            $migrationConfig['name'],
+            $migrationConfig['options'],
+        ]);
+        $contextId = $migrationId . '.context';
+        $container->setDefinition($contextId, $contextDefinition);
+
+        // Migrator definitions
+        $migrators = [];
         if (null !== $migrationConfig['migrators_directory']) {
-            $migratorClasses = $this->findMigratorsInDirectory($migrationConfig['migrators_directory']);
+            $migrators = $this->findMigratorsInDirectory($migrationConfig['migrators_directory']);
         }
-        $migratorClasses = array_merge($migratorClasses, $migrationConfig['migrators']);
+        $migrators = array_merge($migrators, $migrationConfig['migrators']);
 
-        // Migration definition with migrators
-        $migration = new ChildDefinition('fregata.migration');
+        foreach ($migrators as $migratorClass) {
+            $migratorDefinition = new Definition($migratorClass);
+            $migratorId = $migrationId . '.migrator.' . (new UnicodeString($migratorClass))->snake();
+            $container->setDefinition($migratorId, $migratorDefinition);
 
-        foreach ($migratorClasses as $migratorClass) {
-            $migrator = new Definition($migratorClass);
-            $migrator->setAutowired(true);
-            $container->setDefinition($migratorClass, $migrator);
-
-            $migration->addMethodCall('add', [new Reference($migratorClass)]);
+            $migratorDefinition->setBindings([MigrationContext::class => $contextDefinition]);
+            $migrationDefinition->addMethodCall('add', [new Reference($migratorId)]);
         }
 
         // Before tasks
         if (null !== $migrationConfig['tasks']['before']) {
             foreach ($migrationConfig['tasks']['before'] as $beforeTaskClass) {
-                $task = new Definition($beforeTaskClass);
-                $container->setDefinition($beforeTaskClass, $task);
+                $taskDefinition = new Definition($beforeTaskClass);
+                $taskId = $migrationId . '.task.before.' . (new UnicodeString($beforeTaskClass))->snake();
+                $container->setDefinition($taskId, $taskDefinition);
 
-                $migration->addMethodCall('addBeforeTask', [new Reference($beforeTaskClass)]);
+                $taskDefinition->setBindings([MigrationContext::class => $contextDefinition]);
+                $migrationDefinition->addMethodCall('addBeforeTask', [new Reference($taskId)]);
             }
         }
 
         // After tasks
         if (null !== $migrationConfig['tasks']['after']) {
             foreach ($migrationConfig['tasks']['after'] as $afterTaskClass) {
-                $task = new Definition($afterTaskClass);
-                $container->setDefinition($afterTaskClass, $task);
+                $taskDefinition = new Definition($afterTaskClass);
+                $taskId = $migrationId . '.task.after.' . (new UnicodeString($afterTaskClass))->snake();
+                $container->setDefinition($taskId, $taskDefinition);
 
-                $migration->addMethodCall('addAfterTask', [new Reference($afterTaskClass)]);
+                $taskDefinition->setBindings([MigrationContext::class => $contextDefinition]);
+                $migrationDefinition->addMethodCall('addAfterTask', [new Reference($taskId)]);
             }
         }
-
-        // Add migration to the registry
-        $migrationId = 'fregata.migration.' . $migrationConfig['name'];
-        $container->setDefinition($migrationId, $migration);
-
-        $registry = $container->getDefinition('fregata.migration_registry');
-        $registry->addMethodCall('add', [
-            $migrationConfig['name'],
-            new Reference($migrationId)
-        ]);
     }
 
     private function findMigratorsInDirectory(string $path): array

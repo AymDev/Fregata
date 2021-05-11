@@ -4,6 +4,7 @@ namespace Fregata\Tests\Configuration;
 
 use Fregata\Configuration\AbstractFregataKernel;
 use Fregata\Configuration\ConfigurationException;
+use Fregata\Migration\MigrationRegistry;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
@@ -40,8 +41,13 @@ class AbstractFregataKernelTest extends TestCase
             }
         };
 
-        // Dummy assertion
-        $this->assertInstanceOf(Container::class, $kernel->getContainer());
+        // Container is compiled
+        $container = $kernel->getContainer();
+        self::assertInstanceOf(Container::class, $container);
+        self::assertTrue($container->isCompiled());
+
+        // Has minimal services from extension
+        self::assertTrue($container->has(MigrationRegistry::class));
     }
 
     /**

@@ -27,7 +27,8 @@
         "symfony/config": "^5.2",
         "symfony/dependency-injection": "^5.2",
         "hanneskod/classtools": "^1.2",
-        "marcj/topsort": "^2.0"
+        "marcj/topsort": "^2.0",
+        "symfony/string": "^5.2"
     },
     "autoload": {
         "psr-4": {

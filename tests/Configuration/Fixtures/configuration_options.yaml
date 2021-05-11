@@ -1,0 +1,6 @@
+fregata:
+    migrations:
+        test:
+            options:
+                foo: bar
+                baz: boom
