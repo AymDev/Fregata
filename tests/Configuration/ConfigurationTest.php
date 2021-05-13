@@ -31,6 +31,10 @@ class ConfigurationTest extends TestCase
                 self::assertIsString($migration['migrators_directory']);
             }
 
+            if (array_key_exists('parent', $migration)) {
+                self::assertIsString($migration['parent']);
+            }
+
             if (array_key_exists('migrators', $migration)) {
                 self::assertIsArray($migration['migrators']);
                 self::assertContainsOnly('string', $migration['migrators']);

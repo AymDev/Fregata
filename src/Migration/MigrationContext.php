@@ -10,12 +10,18 @@ final class MigrationContext
     private Migration $migration;
     private string $migrationName;
     private array $options;
+    private ?string $parentName;
 
-    public function __construct(Migration $migration, string $migrationName, ?array $options = null)
-    {
+    public function __construct(
+        Migration $migration,
+        string $migrationName,
+        ?array $options = null,
+        ?string $parentName = null
+    ) {
         $this->migration = $migration;
         $this->migrationName = $migrationName;
         $this->options = $options ?? [];
+        $this->parentName = $parentName;
     }
 
     /**
@@ -40,5 +46,13 @@ final class MigrationContext
     public function getOptions(): array
     {
         return $this->options;
+    }
+
+    /**
+     * Get the parent migration name if set
+     */
+    public function getParentName(): ?string
+    {
+        return $this->parentName;
     }
 }

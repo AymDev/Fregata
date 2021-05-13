@@ -18,11 +18,13 @@ class MigrationContextTest extends TestCase
         $options = [
             'foo' => 'bar',
         ];
+        $parent = 'parent-migration';
 
-        $context = new MigrationContext($migration, $name, $options);
+        $context = new MigrationContext($migration, $name, $options, $parent);
 
         self::assertInstanceOf(Migration::class, $context->getMigration());
         self::assertSame($name, $context->getMigrationName());
         self::assertSame($options, $context->getOptions());
+        self::assertSame($parent, $context->getParentName());
     }
 }

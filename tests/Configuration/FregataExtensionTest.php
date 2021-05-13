@@ -155,6 +155,8 @@ class FregataExtensionTest extends TestCase
                                     foo: bar
                                 migrators:
                                     - Fregata\Tests\Configuration\ExtensionTestMigrator
+                            child_migration:
+                                parent: test_migration
                     YAML,
             ],
             'cache' => []
@@ -186,7 +188,7 @@ class FregataExtensionTest extends TestCase
         $registry = $container->get('fregata.migration_registry');
         self::assertInstanceOf(MigrationRegistry::class, $registry);
 
-        $migration = $registry->get('test_migration');
+        $migration = $registry->get('child_migration');
 
         /** @var ExtensionTestMigrator $migrator */
         $migrator = $migration->getMigrators()[0];
@@ -196,7 +198,8 @@ class FregataExtensionTest extends TestCase
         self::assertInstanceOf(MigrationContext::class, $context);
         self::assertSame($migration, $context->getMigration());
         self::assertSame(['foo' => 'bar'], $context->getOptions());
-        self::assertSame('test_migration', $context->getMigrationName());
+        self::assertSame('child_migration', $context->getMigrationName());
+        self::assertSame('test_migration', $context->getParentName());
     }
 }
 

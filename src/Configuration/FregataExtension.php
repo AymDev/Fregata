@@ -21,6 +21,8 @@ use Symfony\Component\String\UnicodeString;
  */
 class FregataExtension extends Extension
 {
+    private array $configuration;
+
     public function load(array $configs, ContainerBuilder $container)
     {
         $configuration = new Configuration();
@@ -28,8 +30,11 @@ class FregataExtension extends Extension
         
         $this->createServiceDefinitions($container);
 
-        foreach ($config['migrations'] as $name => $config) {
-            $config['name'] = $name;
+        // Save complete configuration for access to migrations referenced as parent
+        $this->configuration = $config['migrations'];
+        array_walk($this->configuration, fn (&$migrationConfig, $key) => $migrationConfig['name'] = $key);
+
+        foreach ($this->configuration as $config) {
             $this->registerMigration($container, $config);
         }
     }
@@ -70,19 +75,14 @@ class FregataExtension extends Extension
         $contextDefinition->setArguments([
             new Reference($migrationId),
             $migrationConfig['name'],
-            $migrationConfig['options'],
+            $this->findOptionsForMigration($migrationConfig),
+            $migrationConfig['parent'],
         ]);
         $contextId = $migrationId . '.context';
         $container->setDefinition($contextId, $contextDefinition);
 
         // Migrator definitions
-        $migrators = [];
-        if (null !== $migrationConfig['migrators_directory']) {
-            $migrators = $this->findMigratorsInDirectory($migrationConfig['migrators_directory']);
-        }
-        $migrators = array_merge($migrators, $migrationConfig['migrators']);
-
-        foreach ($migrators as $migratorClass) {
+        foreach ($this->findMigratorsForMigration($migrationConfig) as $migratorClass) {
             $migratorDefinition = new Definition($migratorClass);
             $migratorId = $migrationId . '.migrator.' . (new UnicodeString($migratorClass))->snake();
             $container->setDefinition($migratorId, $migratorDefinition);
@@ -92,28 +92,86 @@ class FregataExtension extends Extension
         }
 
         // Before tasks
-        if (null !== $migrationConfig['tasks']['before']) {
-            foreach ($migrationConfig['tasks']['before'] as $beforeTaskClass) {
-                $taskDefinition = new Definition($beforeTaskClass);
-                $taskId = $migrationId . '.task.before.' . (new UnicodeString($beforeTaskClass))->snake();
-                $container->setDefinition($taskId, $taskDefinition);
+        foreach ($this->findBeforeTaskForMigration($migrationConfig) as $beforeTaskClass) {
+            $taskDefinition = new Definition($beforeTaskClass);
+            $taskId = $migrationId . '.task.before.' . (new UnicodeString($beforeTaskClass))->snake();
+            $container->setDefinition($taskId, $taskDefinition);
 
-                $taskDefinition->setBindings([MigrationContext::class => $contextDefinition]);
-                $migrationDefinition->addMethodCall('addBeforeTask', [new Reference($taskId)]);
-            }
+            $taskDefinition->setBindings([MigrationContext::class => $contextDefinition]);
+            $migrationDefinition->addMethodCall('addBeforeTask', [new Reference($taskId)]);
         }
 
         // After tasks
-        if (null !== $migrationConfig['tasks']['after']) {
-            foreach ($migrationConfig['tasks']['after'] as $afterTaskClass) {
-                $taskDefinition = new Definition($afterTaskClass);
-                $taskId = $migrationId . '.task.after.' . (new UnicodeString($afterTaskClass))->snake();
-                $container->setDefinition($taskId, $taskDefinition);
+        foreach ($this->findAfterTaskForMigration($migrationConfig) as $afterTaskClass) {
+            $taskDefinition = new Definition($afterTaskClass);
+            $taskId = $migrationId . '.task.after.' . (new UnicodeString($afterTaskClass))->snake();
+            $container->setDefinition($taskId, $taskDefinition);
 
-                $taskDefinition->setBindings([MigrationContext::class => $contextDefinition]);
-                $migrationDefinition->addMethodCall('addAfterTask', [new Reference($taskId)]);
-            }
+            $taskDefinition->setBindings([MigrationContext::class => $contextDefinition]);
+            $migrationDefinition->addMethodCall('addAfterTask', [new Reference($taskId)]);
         }
+    }
+
+    private function findOptionsForMigration(array $migrationConfig): array
+    {
+        $options = [];
+
+        // Migration has a parent
+        if (null !== $migrationConfig['parent']) {
+            $parent = $migrationConfig['parent'];
+            $options = $this->findOptionsForMigration($this->configuration[$parent]);
+        }
+
+        // Migration has an options list
+        return array_merge($options, $migrationConfig['options'] ?? []);
+    }
+
+    private function findBeforeTaskForMigration(array $migrationConfig): array
+    {
+        $tasks = [];
+
+        // Migration has a parent
+        if (null !== $migrationConfig['parent']) {
+            $parent = $migrationConfig['parent'];
+            $tasks = $this->findBeforeTaskForMigration($this->configuration[$parent]);
+        }
+
+        // Migration has a task list
+        return array_merge($tasks, $migrationConfig['tasks']['before'] ?? []);
+    }
+
+    private function findAfterTaskForMigration(array $migrationConfig): array
+    {
+        $tasks = [];
+
+        // Migration has a parent
+        if (null !== $migrationConfig['parent']) {
+            $parent = $migrationConfig['parent'];
+            $tasks = $this->findAfterTaskForMigration($this->configuration[$parent]);
+        }
+
+        // Migration has a task list
+        return array_merge($tasks, $migrationConfig['tasks']['after'] ?? []);
+    }
+
+    private function findMigratorsForMigration(array $migrationConfig): array
+    {
+        $migrators = [];
+
+        // Migration has a parent
+        if (null !== $migrationConfig['parent']) {
+            $parent = $migrationConfig['parent'];
+            $migrators = $this->findMigratorsForMigration($this->configuration[$parent]);
+        }
+
+        // Migration has a migrator directory
+        if (null !== $migrationConfig['migrators_directory']) {
+            $dirMigrators = $this->findMigratorsInDirectory($migrationConfig['migrators_directory']);
+            $migrators = array_merge($migrators, $dirMigrators);
+        }
+
+        // Migration has a migrator list
+        return array_merge($migrators, $migrationConfig['migrators'] ?? []);
     }
 
     private function findMigratorsInDirectory(string $path): array

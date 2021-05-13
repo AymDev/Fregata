@@ -18,6 +18,7 @@ class Configuration implements ConfigurationInterface
                     ->arrayPrototype()
                         ->children()
                             ->variableNode('options')->end()
+                            ->scalarNode('parent')->end()
                             ->scalarNode('migrators_directory')->end()
                             ->arrayNode('migrators')
                                 ->scalarPrototype()->end()
