@@ -5,6 +5,10 @@ jobs:
     unit-tests:
         name: PHPUnit test suite
         runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                php: [ '7.4', '8.0' ]
+
         services:
             # MySQL source DB
             mysql:
@@ -15,16 +19,6 @@ jobs:
                 ports:
                     - 3306:3306
                 options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-            # PostgreSQL destination DB
-            postgres:
-                image: postgres:11
-                env:
-                    POSTGRES_USER: postgres
-                    POSTGRES_PASSWORD: postgres
-                    POSTGRES_DB: fregata_target
-                ports:
-                    - 5432:5432
-                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
 
         steps:
             # Setup
@@ -34,8 +28,9 @@ jobs:
             -   name: PHP setup
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-version: '7.4'
-                    extensions: json pdo_mysql pdo_pgsql
+                    php-version: ${{ matrix.php }}
+                    extensions: json pdo_mysql
+                    coverage: xdebug
 
             # Cache Composer dependencies
             -   name: Get composer cache directory
@@ -54,4 +49,4 @@ jobs:
 
             # Run tests suite
             -   name: Run test suite
-                run: php vendor/bin/phpunit
+                run: php vendor/bin/phpunit --coverage-text
