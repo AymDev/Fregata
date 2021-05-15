@@ -21,14 +21,13 @@
     "require": {
         "php": ">=7.4",
         "doctrine/dbal": "^2.10",
-        "symfony/console": "^5.2",
-        "symfony/yaml": "^5.0",
-        "php-di/php-di": "^6.1",
-        "symfony/config": "^5.2",
-        "symfony/dependency-injection": "^5.2",
+        "symfony/console": "^4.4||^5.0",
+        "symfony/yaml": "^4.4||^5.0",
+        "symfony/config": "^4.4||^5.0",
+        "symfony/dependency-injection": "^4.4||^5.0",
         "hanneskod/classtools": "^1.2",
         "marcj/topsort": "^2.0",
-        "symfony/string": "^5.2"
+        "symfony/string": "^5.0"
     },
     "autoload": {
         "psr-4": {
