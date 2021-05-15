@@ -25,9 +25,11 @@ if (false === $autoloaded) {
 }
 
 // Get Fregata kernel
-$kernel = class_exists('App\FregataKernel')
-    ? new \App\FregataKernel()
-    : AbstractFregataKernel::createDefaultKernel();
+try {
+    $kernel = new \App\FregataKernel();
+} catch (\Throwable $e) {
+    $kernel = AbstractFregataKernel::createDefaultKernel();
+}
 
 // Start CLI application
 $container = $kernel->getContainer();
