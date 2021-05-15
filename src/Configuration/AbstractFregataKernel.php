@@ -145,12 +145,12 @@ abstract class AbstractFregataKernel
         return new class extends AbstractFregataKernel {
             protected function getConfigurationDirectory(): string
             {
-                return __DIR__ . '/../../../../config';
+                return __DIR__ . '/../../../../../config';
             }
 
             protected function getCacheDirectory(): string
             {
-                return __DIR__ . '/../../../../cache';
+                return __DIR__ . '/../../../../../cache';
             }
         };
     }
