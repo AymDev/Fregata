@@ -39,6 +39,11 @@ class AbstractFregataKernelTest extends TestCase
             {
                 return $this->vfs->url() . '/cache';
             }
+
+            protected function getContainerClassName(): string
+            {
+                return parent::getContainerClassName() . 'AbstractFregataKernelTest';
+            }
         };
 
         // Container is compiled

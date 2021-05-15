@@ -180,6 +180,11 @@ class FregataExtensionTest extends TestCase
             {
                 return $this->vfs->url() . '/cache';
             }
+
+            protected function getContainerClassName(): string
+            {
+                return parent::getContainerClassName() . 'FregataExtensionTest';
+            }
         };
 
         $container = $kernel->getContainer();

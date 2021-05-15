@@ -28,6 +28,15 @@ abstract class AbstractFregataKernel
      */
     abstract protected function getCacheDirectory(): string;
 
+    /**
+     * Get the container class name. Overriden in the framework tests.
+     * @internal
+     */
+    protected function getContainerClassName(): string
+    {
+        return self::CONTAINER_CLASS_NAME;
+    }
+
 
     /**
      * Creates a cached service container to use in a standalone Fregata project where no other container exists
@@ -49,7 +58,8 @@ abstract class AbstractFregataKernel
 
             // Load and start the container
             require_once $containerLocation;
-            $this->container =  new \Fregata\FregataCachedContainer();
+            $containerClassName = sprintf('\Fregata\%s', $this->getContainerClassName());
+            $this->container =  new $containerClassName();
         }
 
         return $this->container;
@@ -66,7 +76,7 @@ abstract class AbstractFregataKernel
             throw ConfigurationException::invalidCacheDirectory($cacheDirectory);
         }
 
-        return $this->getCacheDirectory() . DIRECTORY_SEPARATOR . self::CONTAINER_CLASS_NAME . '.php';
+        return $this->getCacheDirectory() . DIRECTORY_SEPARATOR . $this->getContainerClassName() . '.php';
     }
 
     /**
@@ -121,7 +131,7 @@ abstract class AbstractFregataKernel
         $dumper = new PhpDumper($container);
         $containerContent = $dumper->dump([
             'namespace' => 'Fregata',
-            'class'     => 'FregataCachedContainer',
+            'class'     => $this->getContainerClassName(),
         ]);
 
         file_put_contents($this->getCachedContainerLocation(), $containerContent);
