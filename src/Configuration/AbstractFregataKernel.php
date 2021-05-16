@@ -17,6 +17,7 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
  */
 abstract class AbstractFregataKernel
 {
+    public const VERSION = 'v1.0.0';
     private const CONTAINER_CLASS_NAME = 'FregataCachedContainer';
     private ?Container $container = null;
     private ?string $rootDir = null;

@@ -32,7 +32,11 @@ class CommandsCompilerPass implements CompilerPassInterface
 
         // Application
         $applicationDefinition = new Definition(Application::class);
-        $applicationDefinition->setPublic(true);
+        $applicationDefinition
+            ->setPublic(true)
+            ->addMethodCall('setName', ['Fregata CLI'])
+            ->addMethodCall('setVersion', [AbstractFregataKernel::VERSION]);
+        ;
         $container->setDefinition(Application::class, $applicationDefinition);
 
         // Commands

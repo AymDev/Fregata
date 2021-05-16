@@ -38,10 +38,13 @@ class CommandsCompilerPassTest extends TestCase
             return $call;
         }, $methodCalls);
 
-        self::assertSame(['add'], array_unique(array_column($methodCalls, 0)));
+        self::assertEqualsCanonicalizing(
+            ['add', 'setName', 'setVersion'],
+            array_unique(array_column($methodCalls, 0))
+        );
         self::assertEqualsCanonicalizing(
             [MigrationListCommand::class, MigrationShowCommand::class, MigrationExecuteCommand::class],
-            array_column($methodCalls, 1)
+            array_column(array_filter($methodCalls, fn(array $call) => $call[0] === 'add'), 1)
         );
     }
 }

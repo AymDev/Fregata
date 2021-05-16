@@ -20,7 +20,7 @@ class MigrationExecuteCommand extends Command
      * \r moves the cursor the begining of the line
      */
     private const LINE_ERASER = "\33[2K\r";
-    protected static $defaultName = 'migration:show';
+    protected static $defaultName = 'migration:execute';
     private MigrationRegistry $migrationRegistry;
 
     public function __construct(MigrationRegistry $migrationRegistry)
@@ -40,18 +40,12 @@ class MigrationExecuteCommand extends Command
                 InputArgument::REQUIRED,
                 'The name of the migration.'
             )
-            ->addOption(
-                'no-interaction',
-                'i',
-                InputOption::VALUE_NONE,
-                'Does not ask interactive questions.'
-            )
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $isInteractive = false === $input->getOption('no-interaction');
+        $isInteractive = $input->hasOption('no-interaction') && false === $input->getOption('no-interaction');
         $io = new SymfonyStyle($input, $output);
 
         $migrationName = $input->getArgument('migration');

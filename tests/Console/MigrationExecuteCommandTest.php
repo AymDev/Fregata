@@ -36,7 +36,6 @@ class MigrationExecuteCommandTest extends TestCase
 
         $tester->execute([
             'migration' => 'test-migration',
-            '--no-interaction' => null,
         ]);
 
         // Command is successful
@@ -73,31 +72,10 @@ class MigrationExecuteCommandTest extends TestCase
         $tester->execute(
             [
                 'migration' => 'unknown',
-                '--no-interaction' => null,
             ], [
                 // To get a ConsoleOutput
                 'capture_stderr_separately' => true,
             ]
-        );
-
-        self::assertNotSame(0, $tester->getStatusCode());
-        self::assertStringContainsString('[ERROR]', $tester->getDisplay());
-    }
-
-    /**
-     * Migration is not executed if interactive and unconfirmed
-     */
-    public function testInteractiveUnconfirmed()
-    {
-        $registry = new MigrationRegistry();
-        $registry->add('test-migration', new Migration());
-
-        $command = new MigrationExecuteCommand($registry);
-        $tester = new CommandTester($command);
-
-        $tester->execute(
-            ['migration' => 'test-migration'],
-            ['capture_stderr_separately' => true]
         );
 
         self::assertNotSame(0, $tester->getStatusCode());
