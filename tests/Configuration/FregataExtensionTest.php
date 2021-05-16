@@ -222,7 +222,7 @@ class ExtensionTestMigrator implements MigratorInterface
         return $this->context;
     }
 
-    public function getPuller(): ?PullerInterface {}
+    public function getPuller(): PullerInterface {}
     public function getPusher(): PusherInterface {}
     public function getExecutor(): Executor {}
 }

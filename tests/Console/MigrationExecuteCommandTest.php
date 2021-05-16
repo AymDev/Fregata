@@ -90,7 +90,7 @@ class MigrationExecuteCommandTest extends TestCase
 class MigrationExecuteCommandMigrator implements MigratorInterface {
     private ?PusherInterface $pusher = null;
 
-    public function getPuller(): ?PullerInterface
+    public function getPuller(): PullerInterface
     {
         return new class implements PullerInterface {
             public array $data = ['foo', 'bar', 'baz'];

@@ -95,7 +95,7 @@ class ForeignKeyBeforeTaskTest extends AbstractDbalTestCase
             }
 
             public function getForeignKeys(): array {}
-            public function getPuller(): ?PullerInterface {}
+            public function getPuller(): PullerInterface {}
             public function getPusher(): PusherInterface {}
             public function getExecutor(): Executor {}
         });
@@ -133,7 +133,7 @@ class ForeignKeyBeforeTaskMigrator implements HasForeignKeysInterface
         );
     }
 
-    public function getPuller(): ?PullerInterface {}
+    public function getPuller(): PullerInterface {}
     public function getPusher(): PusherInterface {}
     public function getExecutor(): Executor {}
 }

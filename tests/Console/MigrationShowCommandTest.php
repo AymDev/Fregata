@@ -101,7 +101,7 @@ class MigrationShowCommandTest extends TestCase
  * @see MigrationShowCommandTest::testListMigrationMigrators()
  */
 class MigrationShowCommandFirstMigrator implements MigratorInterface {
-    public function getPuller(): ?PullerInterface {}
+    public function getPuller(): PullerInterface {}
     public function getPusher(): PusherInterface {}
     public function getExecutor(): Executor {}
 }

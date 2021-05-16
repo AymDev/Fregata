@@ -130,7 +130,7 @@ class CircularFirstMigrator implements DependentMigratorInterface
         return [CircularSecondMigrator::class];
     }
 
-    public function getPuller(): ?PullerInterface {}
+    public function getPuller(): PullerInterface {}
     public function getPusher(): PusherInterface {}
     public function getExecutor(): Executor {}
 }
@@ -142,7 +142,7 @@ class CircularSecondMigrator implements DependentMigratorInterface
         return [CircularFirstMigrator::class];
     }
 
-    public function getPuller(): ?PullerInterface {}
+    public function getPuller(): PullerInterface {}
     public function getPusher(): PusherInterface {}
     public function getExecutor(): Executor {}
 }

@@ -15,7 +15,7 @@ interface MigratorInterface
     /**
      * Return the puller responsible of the data retrieval
      */
-    public function getPuller(): ?PullerInterface;
+    public function getPuller(): PullerInterface;
 
     /**
      * Return the pusher responsible for the data insertion

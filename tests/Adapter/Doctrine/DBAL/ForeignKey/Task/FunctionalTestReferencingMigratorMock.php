@@ -25,7 +25,7 @@ class FunctionalTestReferencingMigratorMock implements HasForeignKeysInterface, 
         $this->columnHelper = $columnHelper;
     }
 
-    public function getPuller(): ?PullerInterface
+    public function getPuller(): PullerInterface
     {
         return new class($this->connection) implements PullerInterface {
             private Connection $connection;
