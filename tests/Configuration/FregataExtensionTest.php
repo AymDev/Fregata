@@ -30,10 +30,6 @@ class FregataExtensionTest extends TestCase
 
         $extension->load([], $container);
 
-        // Migration registry
-        $registry = $container->get('fregata.migration_registry');
-        self::assertInstanceOf(MigrationRegistry::class, $registry);
-
         // Base migration
         $migration = $container->get('fregata.migration');
         self::assertInstanceOf(Migration::class, $migration);

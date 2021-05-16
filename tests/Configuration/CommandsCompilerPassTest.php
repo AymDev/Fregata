@@ -3,6 +3,7 @@
 namespace Fregata\Tests\Configuration;
 
 use Fregata\Configuration\CommandsCompilerPass;
+use Fregata\Console\CommandHelper;
 use Fregata\Console\MigrationExecuteCommand;
 use Fregata\Console\MigrationListCommand;
 use Fregata\Console\MigrationShowCommand;
@@ -23,6 +24,7 @@ class CommandsCompilerPassTest extends TestCase
 
         $compilerPass->process($container);
 
+        self::assertTrue($container->has(CommandHelper::class));
         self::assertTrue($container->has(Application::class));
         self::assertTrue($container->has(MigrationListCommand::class));
         self::assertTrue($container->has(MigrationShowCommand::class));

@@ -53,6 +53,10 @@ class AbstractFregataKernelTest extends TestCase
 
         // Has minimal services from extension
         self::assertTrue($container->has(MigrationRegistry::class));
+
+        // Has parameters
+        self::assertTrue($container->hasParameter('fregata.root_dir'));
+        self::assertTrue($container->hasParameter('fregata.config_dir'));
     }
 
     /**

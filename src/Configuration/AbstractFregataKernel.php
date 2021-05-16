@@ -2,11 +2,13 @@
 
 namespace Fregata\Configuration;
 
+use Composer\Autoload\ClassLoader;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
+use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 /**
@@ -17,6 +19,7 @@ abstract class AbstractFregataKernel
 {
     private const CONTAINER_CLASS_NAME = 'FregataCachedContainer';
     private ?Container $container = null;
+    private ?string $rootDir = null;
 
     /**
      * Get the configuration directory location
@@ -27,6 +30,19 @@ abstract class AbstractFregataKernel
      * Get the cache directory location
      */
     abstract protected function getCacheDirectory(): string;
+
+    /**
+     * Get project's root directory location
+     */
+    public function getRootDirectory(): string
+    {
+        if (null === $this->rootDir) {
+            $reflection = new \ReflectionClass(ClassLoader::class);
+            $this->rootDir = dirname($reflection->getFileName(), 3);
+        }
+
+        return $this->rootDir;
+    }
 
     /**
      * Get the container class name. Overriden in the framework tests.
@@ -93,10 +109,12 @@ abstract class AbstractFregataKernel
             $configurationDirectory = realpath($this->getConfigurationDirectory()) ?: $this->getConfigurationDirectory();
             throw ConfigurationException::invalidConfigurationDirectory($configurationDirectory);
         }
+        $containerBuilder->setParameter('fregata.root_dir', $this->getRootDirectory());
         $containerBuilder->setParameter('fregata.config_dir', $this->getConfigurationDirectory());
 
         // register migration services
         $containerBuilder->registerExtension(new FregataExtension());
+        $containerBuilder->addCompilerPass(new FregataCompilerPass());
         $containerBuilder->addCompilerPass(new CommandsCompilerPass());
 
         // Register main services
@@ -145,12 +163,12 @@ abstract class AbstractFregataKernel
         return new class extends AbstractFregataKernel {
             protected function getConfigurationDirectory(): string
             {
-                return __DIR__ . '/../../../../../config';
+                return $this->getRootDirectory() . DIRECTORY_SEPARATOR . 'config';
             }
 
             protected function getCacheDirectory(): string
             {
-                return __DIR__ . '/../../../../../cache';
+                return $this->getRootDirectory() . DIRECTORY_SEPARATOR . 'cache';
             }
         };
     }

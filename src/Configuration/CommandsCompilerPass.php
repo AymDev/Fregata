@@ -2,6 +2,7 @@
 
 namespace Fregata\Configuration;
 
+use Fregata\Console\CommandHelper;
 use Fregata\Console\MigrationExecuteCommand;
 use Fregata\Console\MigrationListCommand;
 use Fregata\Console\MigrationShowCommand;
@@ -25,14 +26,22 @@ class CommandsCompilerPass implements CompilerPassInterface
 
     public function process(ContainerBuilder $container)
     {
+        // Helpers
+        $commandHelperDefinition = new Definition(CommandHelper::class);
+        $container->setDefinition(CommandHelper::class, $commandHelperDefinition);
+
+        // Application
         $applicationDefinition = new Definition(Application::class);
         $applicationDefinition->setPublic(true);
+        $container->setDefinition(Application::class, $applicationDefinition);
 
+        // Commands
         foreach (self::COMMAND_CLASSES as $commandClass) {
-            $container->setDefinition($commandClass, new Definition($commandClass));
+            $commandDefinition = new Definition($commandClass);
+            $commandDefinition->setAutowired(true);
+
+            $container->setDefinition($commandClass, $commandDefinition);
             $applicationDefinition->addMethodCall('add', [new Reference($commandClass)]);
         }
-
-        $container->setDefinition(Application::class, $applicationDefinition);
     }
 }

@@ -41,14 +41,6 @@ class FregataExtension extends Extension
 
     private function createServiceDefinitions(ContainerBuilder $container): void
     {
-        // Migration registry
-        $registryDefinition = new Definition(MigrationRegistry::class);
-        $container->setDefinition('fregata.migration_registry', $registryDefinition);
-        $container
-            ->setDefinition(MigrationRegistry::class, $registryDefinition)
-            ->setPublic(true)
-        ;
-
         // Base migration service
         $container
             ->setDefinition('fregata.migration', new Definition(Migration::class))
@@ -61,14 +53,8 @@ class FregataExtension extends Extension
         // Migration definition
         $migrationDefinition = new ChildDefinition('fregata.migration');
         $migrationId = 'fregata.migration.' . $migrationConfig['name'];
+        $migrationDefinition->addTag('fregata.migration', ['name' => $migrationConfig['name']]);
         $container->setDefinition($migrationId, $migrationDefinition);
-
-        // Add migration to the registry
-        $registry = $container->getDefinition('fregata.migration_registry');
-        $registry->addMethodCall('add', [
-            $migrationConfig['name'],
-            new Reference($migrationId)
-        ]);
 
         // Migration context
         $contextDefinition = new Definition(MigrationContext::class);
@@ -85,9 +71,10 @@ class FregataExtension extends Extension
         foreach ($this->findMigratorsForMigration($migrationConfig) as $migratorClass) {
             $migratorDefinition = new Definition($migratorClass);
             $migratorId = $migrationId . '.migrator.' . (new UnicodeString($migratorClass))->snake();
+            $migratorDefinition->setAutowired(true);
             $container->setDefinition($migratorId, $migratorDefinition);
 
-            $migratorDefinition->setBindings([MigrationContext::class => $contextDefinition]);
+            $migratorDefinition->setBindings([MigrationContext::class => new BoundArgument($contextDefinition, false)]);
             $migrationDefinition->addMethodCall('add', [new Reference($migratorId)]);
         }
 
@@ -97,7 +84,7 @@ class FregataExtension extends Extension
             $taskId = $migrationId . '.task.before.' . (new UnicodeString($beforeTaskClass))->snake();
             $container->setDefinition($taskId, $taskDefinition);
 
-            $taskDefinition->setBindings([MigrationContext::class => $contextDefinition]);
+            $taskDefinition->setBindings([MigrationContext::class => new BoundArgument($contextDefinition, false)]);
             $migrationDefinition->addMethodCall('addBeforeTask', [new Reference($taskId)]);
         }
 
@@ -107,7 +94,7 @@ class FregataExtension extends Extension
             $taskId = $migrationId . '.task.after.' . (new UnicodeString($afterTaskClass))->snake();
             $container->setDefinition($taskId, $taskDefinition);
 
-            $taskDefinition->setBindings([MigrationContext::class => $contextDefinition]);
+            $taskDefinition->setBindings([MigrationContext::class => new BoundArgument($contextDefinition, false)]);
             $migrationDefinition->addMethodCall('addAfterTask', [new Reference($taskId)]);
         }
     }
