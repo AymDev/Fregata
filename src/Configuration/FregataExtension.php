@@ -62,7 +62,7 @@ class FregataExtension extends Extension
             new Reference($migrationId),
             $migrationConfig['name'],
             $this->findOptionsForMigration($migrationConfig),
-            $migrationConfig['parent'],
+            $migrationConfig['parent'] ?? null,
         ]);
         $contextId = $migrationId . '.context';
         $container->setDefinition($contextId, $contextDefinition);
@@ -104,7 +104,7 @@ class FregataExtension extends Extension
         $options = [];
 
         // Migration has a parent
-        if (null !== $migrationConfig['parent']) {
+        if (isset($migrationConfig['parent'])) {
             $parent = $migrationConfig['parent'];
             $options = $this->findOptionsForMigration($this->configuration[$parent]);
         }
@@ -118,7 +118,7 @@ class FregataExtension extends Extension
         $tasks = [];
 
         // Migration has a parent
-        if (null !== $migrationConfig['parent']) {
+        if (isset($migrationConfig['parent'])) {
             $parent = $migrationConfig['parent'];
             $tasks = $this->findBeforeTaskForMigration($this->configuration[$parent]);
         }
@@ -132,7 +132,7 @@ class FregataExtension extends Extension
         $tasks = [];
 
         // Migration has a parent
-        if (null !== $migrationConfig['parent']) {
+        if (isset($migrationConfig['parent'])) {
             $parent = $migrationConfig['parent'];
             $tasks = $this->findAfterTaskForMigration($this->configuration[$parent]);
         }
@@ -146,13 +146,13 @@ class FregataExtension extends Extension
         $migrators = [];
 
         // Migration has a parent
-        if (null !== $migrationConfig['parent']) {
+        if (isset($migrationConfig['parent'])) {
             $parent = $migrationConfig['parent'];
             $migrators = $this->findMigratorsForMigration($this->configuration[$parent]);
         }
 
         // Migration has a migrator directory
-        if (null !== $migrationConfig['migrators_directory']) {
+        if (isset($migrationConfig['migrators_directory'])) {
             $dirMigrators = $this->findMigratorsInDirectory($migrationConfig['migrators_directory']);
             $migrators = array_merge($migrators, $dirMigrators);
         }
