@@ -1,12 +1,16 @@
 #!/usr/bin/env php
 <?php
 
-use Fregata\Console\MigrationCommand;
+use Fregata\Configuration\AbstractFregataKernel;
 use Symfony\Component\Console\Application;
 
 // Include Composer autoloader
 $autoload_paths = [
+    // Normal installation
     __DIR__ . '/../../../autoload.php',
+    // Implementation symbolic link
+    __DIR__ . '/../_implementation/vendor/autoload.php',
+    // Development
     __DIR__ . '/../vendor/autoload.php',
 ];
 $autoloaded     = false;
@@ -24,11 +28,14 @@ if (false === $autoloaded) {
     exit(1);
 }
 
-// Run console application
-$application = new Application('Fregata', 'v0.1.0 (dev)');
-$mainCommand = new MigrationCommand();
+// Get Fregata kernel
+try {
+    $kernel = new \App\FregataKernel();
+} catch (\Throwable $e) {
+    $kernel = AbstractFregataKernel::createDefaultKernel();
+}
 
-$application->add($mainCommand);
-$application->setDefaultCommand($mainCommand->getName());
-
+// Start CLI application
+$container = $kernel->getContainer();
+$application = $container->get(Application::class);
 $application->run();

@@ -1,0 +1,7 @@
+fregata:
+    migrations:
+        test:
+            migrators:
+                - first
+                - second
+                - third

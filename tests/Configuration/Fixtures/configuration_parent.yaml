@@ -1,0 +1,5 @@
+fregata:
+    migrations:
+        test:
+        child:
+            parent: test

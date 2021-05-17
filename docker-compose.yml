@@ -9,16 +9,13 @@ services:
             MYSQL_ROOT_PASSWORD: root
             MYSQL_DATABASE: fregata_source
 
-    pgsql:
-        image: "postgres:11"
-        ports:
-            - 5432:5432
-        environment:
-            POSTGRES_USER: postgres
-            POSTGRES_PASSWORD: postgres
-            POSTGRES_DB: fregata_target
-
-    adminer:
-        image: "adminer:4.7"
-        ports:
-            - 8080:8080
+    app:
+        build:
+            context: .
+        container_name: fregata_app
+        restart: on-failure
+        tty: true
+        stdin_open: true
+        network_mode: host
+        volumes:
+            - ./:/var/www/html
