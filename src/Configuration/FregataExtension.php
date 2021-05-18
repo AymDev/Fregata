@@ -16,9 +16,6 @@ use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\String\UnicodeString;
 
-/**
- * @internal
- */
 class FregataExtension extends Extension
 {
     private array $configuration;
@@ -39,7 +36,7 @@ class FregataExtension extends Extension
         }
     }
 
-    private function createServiceDefinitions(ContainerBuilder $container): void
+    protected function createServiceDefinitions(ContainerBuilder $container): void
     {
         // Base migration service
         $container
@@ -48,7 +45,7 @@ class FregataExtension extends Extension
         ;
     }
 
-    private function registerMigration(ContainerBuilder $container, array $migrationConfig): void
+    protected function registerMigration(ContainerBuilder $container, array $migrationConfig): void
     {
         // Migration definition
         $migrationDefinition = new ChildDefinition('fregata.migration');
@@ -99,7 +96,7 @@ class FregataExtension extends Extension
         }
     }
 
-    private function findOptionsForMigration(array $migrationConfig): array
+    protected function findOptionsForMigration(array $migrationConfig): array
     {
         $options = [];
 
@@ -113,7 +110,7 @@ class FregataExtension extends Extension
         return array_merge($options, $migrationConfig['options'] ?? []);
     }
 
-    private function findBeforeTaskForMigration(array $migrationConfig): array
+    protected function findBeforeTaskForMigration(array $migrationConfig): array
     {
         $tasks = [];
 
@@ -127,7 +124,7 @@ class FregataExtension extends Extension
         return array_merge($tasks, $migrationConfig['tasks']['before'] ?? []);
     }
 
-    private function findAfterTaskForMigration(array $migrationConfig): array
+    protected function findAfterTaskForMigration(array $migrationConfig): array
     {
         $tasks = [];
 
@@ -141,7 +138,7 @@ class FregataExtension extends Extension
         return array_merge($tasks, $migrationConfig['tasks']['after'] ?? []);
     }
 
-    private function findMigratorsForMigration(array $migrationConfig): array
+    protected function findMigratorsForMigration(array $migrationConfig): array
     {
         $migrators = [];
 
@@ -161,7 +158,7 @@ class FregataExtension extends Extension
         return array_merge($migrators, $migrationConfig['migrators'] ?? []);
     }
 
-    private function findMigratorsInDirectory(string $path): array
+    protected function findMigratorsInDirectory(string $path): array
     {
         $finder = new Finder();
         $iterator = new ClassIterator($finder->in($path));

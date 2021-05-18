@@ -8,7 +8,6 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
-use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 /**
@@ -17,7 +16,7 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
  */
 abstract class AbstractFregataKernel
 {
-    public const VERSION = 'v1.0.0';
+    public const VERSION = 'v1.0.1';
     private const CONTAINER_CLASS_NAME = 'FregataCachedContainer';
     private ?Container $container = null;
     private ?string $rootDir = null;

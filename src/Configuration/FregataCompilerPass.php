@@ -9,9 +9,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @internal
- */
 class FregataCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container)

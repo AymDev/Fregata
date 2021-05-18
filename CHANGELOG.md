@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2021-05-18
+### Changed
+ - Changed visibility of `FregataExtension` methods to `protected` to allow reusability in the Symfony bundle.
+ - Unmarked `FregataExtension` and `FregataCompilerPass` as internal for reuse in the Symfony bundle.
+
 ## [1.0.0] - 2021-05-17
 ### Removed
  - `v0` code (**Fregata** has been completely rewritten)
@@ -52,7 +57,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Connection abstract wrapper class
  - Migrator system with interface and abstract class
 
-[Unreleased]: https://github.com/AymDev/Fregata/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/AymDev/Fregata/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/AymDev/Fregata/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/AymDev/Fregata/compare/v0.3.1...v1.0.0
 [0.3.2]: https://github.com/AymDev/Fregata/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/AymDev/Fregata/compare/v0.3.0...v0.3.1
