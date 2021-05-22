@@ -79,6 +79,7 @@ class FregataExtension extends Extension
         foreach ($this->findBeforeTaskForMigration($migrationConfig) as $beforeTaskClass) {
             $taskDefinition = new Definition($beforeTaskClass);
             $taskId = $migrationId . '.task.before.' . (new UnicodeString($beforeTaskClass))->snake();
+            $taskDefinition->setAutowired(true);
             $container->setDefinition($taskId, $taskDefinition);
 
             $taskDefinition->setBindings([MigrationContext::class => new BoundArgument($contextDefinition, false)]);
@@ -89,6 +90,7 @@ class FregataExtension extends Extension
         foreach ($this->findAfterTaskForMigration($migrationConfig) as $afterTaskClass) {
             $taskDefinition = new Definition($afterTaskClass);
             $taskId = $migrationId . '.task.after.' . (new UnicodeString($afterTaskClass))->snake();
+            $taskDefinition->setAutowired(true);
             $container->setDefinition($taskId, $taskDefinition);
 
             $taskDefinition->setBindings([MigrationContext::class => new BoundArgument($contextDefinition, false)]);

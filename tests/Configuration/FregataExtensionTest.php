@@ -59,6 +59,10 @@ class FregataExtensionTest extends TestCase
         // Migrators
         self::assertTrue($container->has('fregata.migration.test_migration.migrator.fregata_tests_configuration_fixtures_extension_test_directory_migrator'));
         self::assertTrue($container->has('fregata.migration.test_migration.migrator.fregata_tests_configuration_extension_test_migrator'));
+
+        // Migrators have autowiring
+        $migratorDefinition = $container->getDefinition('fregata.migration.test_migration.migrator.fregata_tests_configuration_extension_test_migrator');
+        self::assertTrue($migratorDefinition->isAutowired());
     }
 
     /**
@@ -87,6 +91,10 @@ class FregataExtensionTest extends TestCase
 
         // Task
         self::assertTrue($container->has('fregata.migration.test_migration.task.before.fregata_tests_configuration_extension_test_task'));
+
+        // Before tasks have autowiring
+        $taskDefinition = $container->getDefinition('fregata.migration.test_migration.task.before.fregata_tests_configuration_extension_test_task');
+        self::assertTrue($taskDefinition->isAutowired());
     }
 
     /**
@@ -115,6 +123,10 @@ class FregataExtensionTest extends TestCase
 
         // Task
         self::assertTrue($container->has('fregata.migration.test_migration.task.after.fregata_tests_configuration_extension_test_task'));
+
+        // After tasks have autowiring
+        $taskDefinition = $container->getDefinition('fregata.migration.test_migration.task.after.fregata_tests_configuration_extension_test_task');
+        self::assertTrue($taskDefinition->isAutowired());
     }
 
     /**
