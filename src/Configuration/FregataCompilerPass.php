@@ -2,6 +2,7 @@
 
 namespace Fregata\Configuration;
 
+use Fregata\Adapter\Doctrine\DBAL\ForeignKey\CopyColumnHelper;
 use Fregata\Migration\MigrationRegistry;
 use Fregata\Migration\Migrator\Component\Executor;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -35,6 +36,14 @@ class FregataCompilerPass implements CompilerPassInterface
         $container->setDefinition('fregata.executor', $executorDefinition);
         $container
             ->setDefinition(Executor::class, $executorDefinition)
+            ->setPublic(true)
+        ;
+
+        // Column helper
+        $columnHelperDefinition = new Definition(CopyColumnHelper::class);
+        $container->setDefinition('fregata.doctrine.dbal.column_helper', $columnHelperDefinition);
+        $container
+            ->setDefinition(CopyColumnHelper::class, $columnHelperDefinition)
             ->setPublic(true)
         ;
     }

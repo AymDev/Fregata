@@ -2,6 +2,7 @@
 
 namespace Fregata\Tests\Configuration;
 
+use Fregata\Adapter\Doctrine\DBAL\ForeignKey\CopyColumnHelper;
 use Fregata\Configuration\FregataCompilerPass;
 use Fregata\Migration\Migration;
 use Fregata\Migration\MigrationRegistry;
@@ -25,6 +26,7 @@ class FregataCompilerPassTest extends TestCase
 
         self::assertTrue($container->has(MigrationRegistry::class));
         self::assertTrue($container->has(Executor::class));
+        self::assertTrue($container->has(CopyColumnHelper::class));
     }
 
     /**
