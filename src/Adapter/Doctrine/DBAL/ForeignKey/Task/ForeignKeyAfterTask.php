@@ -125,10 +125,16 @@ class ForeignKeyAfterTask implements TaskInterface
              *          AND _l.local_copy_2 = _f.foreign_copy_2
              */
 
+            // PostgreSQL does not support table aliasing in the left side of a SET clause
+            $postgresSetClause = implode(', ', array_map(
+                fn(array $colNames) => sprintf('%s = _f.%s', $colNames['local'], $colNames['foreign']),
+                $columnCombinations
+            ));
+
             $updateQuery = sprintf(
                 'UPDATE %s _l SET %s FROM %s _f WHERE %s',
                 $foreignKey->getTableName(),
-                $setClause,
+                $postgresSetClause,
                 $foreignKey->getConstraint()->getForeignTableName(),
                 $joinConditions
             );
