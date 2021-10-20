@@ -10,8 +10,15 @@ use Fregata\Console\MigrationShowCommand;
 use Symfony\Component\Console\Application;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class FregataBundle extends Bundle
+final class FregataBundle extends Bundle
 {
+
+    const NAME = 'fregata';
+
+    public function __construct()
+    {
+        $this->name = self::NAME;
+    }
 
     public function registerCommands(Application $application)
     {
