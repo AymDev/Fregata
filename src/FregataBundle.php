@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Fregata\Fregata;
+namespace Fregata;
 
-use Fregata\Console\MigrationExecuteCommand;
-use Fregata\Console\MigrationListCommand;
-use Fregata\Console\MigrationShowCommand;
+use Fregata\Command\MigrationExecuteCommand;
+use Fregata\Command\MigrationListCommand;
+use Fregata\Command\MigrationShowCommand;
 use Symfony\Component\Console\Application;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 

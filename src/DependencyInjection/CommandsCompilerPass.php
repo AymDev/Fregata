@@ -1,11 +1,11 @@
 <?php
 
-namespace Fregata\Configuration;
+namespace Fregata\DependencyInjection;
 
+use Fregata\Command\MigrationExecuteCommand;
+use Fregata\Command\MigrationListCommand;
+use Fregata\Command\MigrationShowCommand;
 use Fregata\Console\CommandHelper;
-use Fregata\Console\MigrationExecuteCommand;
-use Fregata\Console\MigrationListCommand;
-use Fregata\Console\MigrationShowCommand;
 use Symfony\Component\Console\Application;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

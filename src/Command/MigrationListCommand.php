@@ -1,9 +1,9 @@
 <?php
 
-namespace Fregata\Console;
+namespace Fregata\Command;
 
+use Fregata\Console\CommandHelper;
 use Fregata\Migration\MigrationRegistry;
-use Fregata\Migration\Migrator\MigratorInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;

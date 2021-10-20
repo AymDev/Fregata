@@ -3,12 +3,9 @@
 namespace Fregata\Adapter\Doctrine\DBAL\ForeignKey\Task;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\TableDiff;
 use Fregata\Adapter\Doctrine\DBAL\ForeignKey\CopyColumnHelper;
 use Fregata\Adapter\Doctrine\DBAL\ForeignKey\ForeignKey;
 use Fregata\Adapter\Doctrine\DBAL\ForeignKey\ForeignKeyException;

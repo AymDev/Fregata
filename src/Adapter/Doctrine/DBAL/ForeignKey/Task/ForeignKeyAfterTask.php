@@ -3,15 +3,10 @@
 namespace Fregata\Adapter\Doctrine\DBAL\ForeignKey\Task;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
-use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
-use Doctrine\DBAL\Platforms\SQLServerPlatform;
-use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
-use Doctrine\DBAL\Schema\TableDiff;
 use Fregata\Adapter\Doctrine\DBAL\ForeignKey\CopyColumnHelper;
 use Fregata\Adapter\Doctrine\DBAL\ForeignKey\ForeignKey;
 use Fregata\Adapter\Doctrine\DBAL\ForeignKey\Migrator\HasForeignKeysInterface;
@@ -114,7 +109,7 @@ class ForeignKeyAfterTask implements TaskInterface
                 $joinConditions,
                 $setClause
             );
-        } elseif ($connection->getDatabasePlatform() instanceof PostgreSqlPlatform) {
+        } elseif ($connection->getDatabasePlatform() instanceof PostgreSQL100Platform) {
             /*
              * Example PostgreSQL query with 2 local/foreign columns:
              *      UPDATE local _l SET
@@ -138,7 +133,7 @@ class ForeignKeyAfterTask implements TaskInterface
                 $foreignKey->getConstraint()->getForeignTableName(),
                 $joinConditions
             );
-        } elseif ($connection->getDatabasePlatform() instanceof SQLServerPlatform) {
+        } elseif ($connection->getDatabasePlatform() instanceof SQLServer2012Platform) {
             /*
              * Example SQL Server query with 2 local/foreign columns:
              *      UPDATE _l SET
