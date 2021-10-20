@@ -25,6 +25,7 @@
         "symfony/yaml": "^4.4||^5.0",
         "symfony/config": "^4.4||^5.0",
         "symfony/dependency-injection": "^4.4||^5.0",
+        "symfony/http-kernel": "^5.0",
         "hanneskod/classtools": "^1.2",
         "marcj/topsort": "^2.0",
         "symfony/string": "^5.0"
