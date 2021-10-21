@@ -13,7 +13,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class MigrationShowCommand extends Command
 {
-    protected static $defaultName = 'migration:show';
+    protected static $defaultName = 'fregata:migration:show';
     private MigrationRegistry $migrationRegistry;
     private CommandHelper $commandHelper;
 
@@ -22,7 +22,7 @@ class MigrationShowCommand extends Command
         $this->migrationRegistry = $migrationRegistry;
         $this->commandHelper = $commandHelper;
 
-        parent::__construct();
+        parent::__construct(self::$defaultName);
     }
 
     protected function configure()

@@ -19,14 +19,14 @@ class MigrationExecuteCommand extends Command
      * \r moves the cursor the begining of the line
      */
     private const LINE_ERASER = "\33[2K\r";
-    protected static $defaultName = 'migration:execute';
+    protected static $defaultName = 'fregata:migration:execute';
     private MigrationRegistry $migrationRegistry;
 
     public function __construct(MigrationRegistry $migrationRegistry)
     {
         $this->migrationRegistry = $migrationRegistry;
 
-        parent::__construct();
+        parent::__construct(self::$defaultName);
     }
 
     protected function configure()
