@@ -37,13 +37,14 @@ class CommandsCompilerPass implements CompilerPassInterface
             ->setPublic(true)
             ->addMethodCall('setName', ['Fregata CLI'])
             ->addMethodCall('setVersion', [AbstractFregataKernel::VERSION]);
-        ;
+
         $container->setDefinition(Application::class, $applicationDefinition);
 
         // Commands
         foreach (self::COMMAND_CLASSES as $commandClass) {
             $commandDefinition = new Definition($commandClass);
             $commandDefinition->setAutowired(true);
+            $commandDefinition->addTag('console.command');
 
             $container->setDefinition($commandClass, $commandDefinition);
             $applicationDefinition->addMethodCall('add', [new Reference($commandClass)]);

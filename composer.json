@@ -1,6 +1,6 @@
 {
-    "name": "aymdev/fregata",
-    "description": "Database migration framework allowing data migration between different DBMS or database structures.",
+    "name": "aheiland/fregata-symfony-bundle",
+    "description": "Database migration framework allowing data migration between different DBMS or database structures. Bundled for Symfony.",
     "type": "framework",
     "keywords": [
         "database",
@@ -15,16 +15,20 @@
         {
             "name": "AymDev",
             "email": "aymericmayeux@gmail.com"
+        },
+        {
+            "name": "aheiland",
+            "email": "lordicefox@gmail.com"
         }
     ],
     "minimum-stability": "stable",
     "require": {
         "php": ">=7.4",
-        "doctrine/dbal": "^2.10||^3.0",
-        "symfony/console": "^4.4||^5.0",
-        "symfony/yaml": "^4.4||^5.0",
-        "symfony/config": "^4.4||^5.0",
-        "symfony/dependency-injection": "^4.4||^5.0",
+        "doctrine/dbal": "^3.0",
+        "symfony/console": "^5.0",
+        "symfony/yaml": "^5.0",
+        "symfony/config": "^5.0",
+        "symfony/dependency-injection": "^5.0",
         "symfony/http-kernel": "^5.0",
         "hanneskod/classtools": "^1.2",
         "marcj/topsort": "^2.0",
