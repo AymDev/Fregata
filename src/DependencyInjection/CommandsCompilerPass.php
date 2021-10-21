@@ -6,7 +6,7 @@ use Fregata\Command\MigrationExecuteCommand;
 use Fregata\Command\MigrationListCommand;
 use Fregata\Command\MigrationShowCommand;
 use Fregata\Configuration\AbstractFregataKernel;
-use Fregata\Console\CommandHelper;
+use Fregata\Helper\CommandHelper;
 use Symfony\Component\Console\Application;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

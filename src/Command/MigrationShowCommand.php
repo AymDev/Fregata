@@ -2,7 +2,7 @@
 
 namespace Fregata\Command;
 
-use Fregata\Console\CommandHelper;
+use Fregata\Helper\CommandHelper;
 use Fregata\Migration\MigrationRegistry;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

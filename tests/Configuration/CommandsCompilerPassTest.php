@@ -5,7 +5,7 @@ namespace Fregata\Tests\Configuration;
 use Fregata\Command\MigrationExecuteCommand;
 use Fregata\Command\MigrationListCommand;
 use Fregata\Command\MigrationShowCommand;
-use Fregata\Console\CommandHelper;
+use Fregata\Helper\CommandHelper;
 use Fregata\DependencyInjection\CommandsCompilerPass;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;

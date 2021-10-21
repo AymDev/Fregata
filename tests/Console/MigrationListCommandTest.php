@@ -3,7 +3,7 @@
 namespace Fregata\Tests\Console;
 
 use Fregata\Command\MigrationListCommand;
-use Fregata\Console\CommandHelper;
+use Fregata\Helper\CommandHelper;
 use Fregata\Migration\Migration;
 use Fregata\Migration\MigrationRegistry;
 use Fregata\Migration\Migrator\Component\Executor;
