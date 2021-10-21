@@ -3,7 +3,7 @@
 namespace Fregata\Tests\Configuration;
 
 use Fregata\Configuration\AbstractFregataKernel;
-use Fregata\Configuration\FregataExtension;
+use Fregata\DependencyInjection\FregataExtension;
 use Fregata\Migration\Migration;
 use Fregata\Migration\MigrationContext;
 use Fregata\Migration\MigrationRegistry;
@@ -12,7 +12,6 @@ use Fregata\Migration\Migrator\Component\PullerInterface;
 use Fregata\Migration\Migrator\Component\PusherInterface;
 use Fregata\Migration\Migrator\MigratorInterface;
 use Fregata\Migration\TaskInterface;
-use Fregata\Tests\Configuration\Fixtures\ExtensionTestDirectoryMigrator;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;

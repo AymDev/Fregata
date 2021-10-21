@@ -2,7 +2,7 @@
 
 namespace Fregata\Tests\Configuration;
 
-use Fregata\Configuration\Configuration;
+use Fregata\DependencyInjection\Configuration;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Yaml\Yaml;

@@ -17,7 +17,7 @@ final class FregataBundle extends Bundle
         $this->name = self::NAME;
     }
 
-    public function build(ContainerBuilder $container)
+    public function build(ContainerBuilder $container): void
     {
         parent::build($container);
         $container->addCompilerPass(new DependencyInjection\CommandsCompilerPass());
