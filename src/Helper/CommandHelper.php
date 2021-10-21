@@ -1,6 +1,6 @@
 <?php
 
-namespace Fregata\Console;
+namespace Fregata\Helper;
 
 use Symfony\Component\Console\Style\SymfonyStyle;
 

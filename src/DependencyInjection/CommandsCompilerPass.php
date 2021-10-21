@@ -1,11 +1,12 @@
 <?php
 
-namespace Fregata\Configuration;
+namespace Fregata\DependencyInjection;
 
-use Fregata\Console\CommandHelper;
-use Fregata\Console\MigrationExecuteCommand;
-use Fregata\Console\MigrationListCommand;
-use Fregata\Console\MigrationShowCommand;
+use Fregata\Command\MigrationExecuteCommand;
+use Fregata\Command\MigrationListCommand;
+use Fregata\Command\MigrationShowCommand;
+use Fregata\Configuration\AbstractFregataKernel;
+use Fregata\Helper\CommandHelper;
 use Symfony\Component\Console\Application;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -36,13 +37,14 @@ class CommandsCompilerPass implements CompilerPassInterface
             ->setPublic(true)
             ->addMethodCall('setName', ['Fregata CLI'])
             ->addMethodCall('setVersion', [AbstractFregataKernel::VERSION]);
-        ;
+
         $container->setDefinition(Application::class, $applicationDefinition);
 
         // Commands
         foreach (self::COMMAND_CLASSES as $commandClass) {
             $commandDefinition = new Definition($commandClass);
             $commandDefinition->setAutowired(true);
+            $commandDefinition->addTag('console.command');
 
             $container->setDefinition($commandClass, $commandDefinition);
             $applicationDefinition->addMethodCall('add', [new Reference($commandClass)]);

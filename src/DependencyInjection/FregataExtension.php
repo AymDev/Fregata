@@ -1,6 +1,6 @@
 <?php
 
-namespace Fregata\Configuration;
+namespace Fregata\DependencyInjection;
 
 use Fregata\Migration\Migration;
 use Fregata\Migration\MigrationContext;

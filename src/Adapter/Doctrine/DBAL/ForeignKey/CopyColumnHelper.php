@@ -2,9 +2,6 @@
 
 namespace Fregata\Adapter\Doctrine\DBAL\ForeignKey;
 
-use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\Table;
-
 /**
  * This service can help you get the temporary "copy column" names created to keep foreign keys during a migration
  */

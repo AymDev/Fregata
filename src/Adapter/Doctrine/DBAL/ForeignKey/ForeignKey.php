@@ -3,7 +3,6 @@
 namespace Fregata\Adapter\Doctrine\DBAL\ForeignKey;
 
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\Table;
 
 /**
  * Represent a foreign key constraint to keep after a migration

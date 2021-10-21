@@ -1,9 +1,9 @@
 <?php
 
-namespace Fregata\Console;
+namespace Fregata\Command;
 
+use Fregata\Helper\CommandHelper;
 use Fregata\Migration\MigrationRegistry;
-use Fregata\Migration\Migrator\MigratorInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -12,7 +12,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class MigrationListCommand extends Command
 {
-    protected static $defaultName = 'migration:list';
+    protected static $defaultName = 'fregata:migration:list';
     private MigrationRegistry $migrationRegistry;
     private CommandHelper $commandHelper;
 
@@ -21,7 +21,7 @@ class MigrationListCommand extends Command
         $this->migrationRegistry = $migrationRegistry;
         $this->commandHelper = $commandHelper;
 
-        parent::__construct();
+        parent::__construct(self::$defaultName);
     }
 
     protected function configure()

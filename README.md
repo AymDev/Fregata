@@ -1,8 +1,8 @@
 # Fregata - PHP database migrator
 
-![](https://github.com/AymDev/Fregata/workflows/Unit%20Test%20Suite/badge.svg)
-[![Latest Stable Version](https://poser.pugx.org/aymdev/fregata/v)](//packagist.org/packages/aymdev/fregata)
-[![License](https://poser.pugx.org/aymdev/fregata/license)](//packagist.org/packages/aymdev/fregata)
+![](https://github.com/aheiland/fregata-symfony-bundle/workflows/Unit%20Test%20Suite/badge.svg)
+[![Latest Stable Version](https://poser.pugx.org/aheiland/fregata-symfony-bundle/v)](//packagist.org/packages/aheiland/fregata-symfony-bundle)
+[![License](https://poser.pugx.org/aheiland/fregata-symfony-bundle/license)](//packagist.org/packages/aheiland/fregata-symfony-bundle)
 
 **Fregata** is a data migration framework. You can use it to migrate any kind of data, but it has features to help you
 migrate between different DBMS or database structures.
@@ -13,8 +13,7 @@ migrate between different DBMS or database structures.
 2. [Setup](#setup)
     1. [Installation](#installation)
     2. [Configuration](#configuration)
-        1. [Kernel and service container](#kernel-and-service-container)
-        2. [YAML configuration](#yaml-configuration)
+       1. [YAML configuration](#yaml-configuration)
 3. [Components](#components)
     1. [Migration Registry](#migration-registry)
     2. [Migration](#migration)
@@ -64,33 +63,10 @@ Here are some example use cases (from experience):
 
 Install with Composer:
 ```shell
-composer require aymdev/fregata
+composer require aheiland/fregata-symfony-bundle
 ```
 
 ## Configuration
-
-**Fregata** expects you to have a `config` and a `cache` directory at your project root by default.
-
-### Kernel and service container
-
-If you need to use a different directory structure than the default one, you can extend the
-`Fregata\Configuration\AbstractFregataKernel` class.
-Then you will have to implement methods to specify your configuration and cache directory.
->**Important**: your kernel full qualified class name ***must*** be `App\FregataKernel`.
-
-The *kernel* holds a *service container*, built from **Symfony**'s **DependencyInjection** component.
-This means you can define your own services as you would do it in a **Symfony** application, in a
-`services.yaml` file in your configuration directory.
-
-Here's a recommended minimal **services.yaml** to start your project:
-```yaml
-services:
-    _defaults:
-        autowire: true
-
-    App\:
-        resource: '../src/'
-```
 
 ### YAML configuration
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Fregata\Console;
+namespace Fregata\Command;
 
 use Fregata\Migration\MigrationRegistry;
 use Fregata\Migration\Migrator\MigratorInterface;
@@ -8,7 +8,6 @@ use Fregata\Migration\TaskInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -20,14 +19,14 @@ class MigrationExecuteCommand extends Command
      * \r moves the cursor the begining of the line
      */
     private const LINE_ERASER = "\33[2K\r";
-    protected static $defaultName = 'migration:execute';
+    protected static $defaultName = 'fregata:migration:execute';
     private MigrationRegistry $migrationRegistry;
 
     public function __construct(MigrationRegistry $migrationRegistry)
     {
         $this->migrationRegistry = $migrationRegistry;
 
-        parent::__construct();
+        parent::__construct(self::$defaultName);
     }
 
     protected function configure()

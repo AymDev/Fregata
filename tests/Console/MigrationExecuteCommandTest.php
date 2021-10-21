@@ -2,7 +2,7 @@
 
 namespace Fregata\Tests\Console;
 
-use Fregata\Console\MigrationExecuteCommand;
+use Fregata\Command\MigrationExecuteCommand;
 use Fregata\Migration\Migration;
 use Fregata\Migration\MigrationRegistry;
 use Fregata\Migration\Migrator\Component\Executor;

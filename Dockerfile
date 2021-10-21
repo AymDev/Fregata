@@ -1,11 +1,11 @@
-FROM php:7.4.19-alpine
+FROM php:8.0.11-alpine3.13
 
 WORKDIR /var/www/html
 
 COPY --from=composer:2.0.12 /usr/bin/composer /usr/bin/composer
-COPY --from=mlocati/php-extension-installer:1.2.24 /usr/bin/install-php-extensions /usr/local/bin/
 
-RUN apk add --no-cache bash && \
-    install-php-extensions pdo_mysql
+RUN apk add --no-cache bash
+RUN docker-php-ext-install pdo_mysql
+RUN docker-php-ext-enable pdo_mysql
 
 ENTRYPOINT ["bash"]

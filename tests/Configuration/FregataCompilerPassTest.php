@@ -3,7 +3,7 @@
 namespace Fregata\Tests\Configuration;
 
 use Fregata\Adapter\Doctrine\DBAL\ForeignKey\CopyColumnHelper;
-use Fregata\Configuration\FregataCompilerPass;
+use Fregata\DependencyInjection\FregataCompilerPass;
 use Fregata\Migration\Migration;
 use Fregata\Migration\MigrationRegistry;
 use Fregata\Migration\Migrator\Component\Executor;

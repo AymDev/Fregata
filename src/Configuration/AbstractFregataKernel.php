@@ -3,6 +3,9 @@
 namespace Fregata\Configuration;
 
 use Composer\Autoload\ClassLoader;
+use Fregata\DependencyInjection\CommandsCompilerPass;
+use Fregata\DependencyInjection\FregataCompilerPass;
+use Fregata\DependencyInjection\FregataExtension;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Container;

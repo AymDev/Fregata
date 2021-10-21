@@ -1,6 +1,6 @@
 <?php
 
-namespace Fregata\Configuration;
+namespace Fregata\DependencyInjection;
 
 use Fregata\Adapter\Doctrine\DBAL\ForeignKey\CopyColumnHelper;
 use Fregata\Migration\MigrationRegistry;
