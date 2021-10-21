@@ -1,8 +1,8 @@
 # Fregata - PHP database migrator
 
-![](https://github.com/AymDev/Fregata/workflows/Unit%20Test%20Suite/badge.svg)
-[![Latest Stable Version](https://poser.pugx.org/aymdev/fregata/v)](//packagist.org/packages/aymdev/fregata)
-[![License](https://poser.pugx.org/aymdev/fregata/license)](//packagist.org/packages/aymdev/fregata)
+![](https://github.com/aheiland/fregata-symfony-bundle/workflows/Unit%20Test%20Suite/badge.svg)
+[![Latest Stable Version](https://poser.pugx.org/aheiland/fregata-symfony-bundle/v)](//packagist.org/packages/aheiland/fregata-symfony-bundle)
+[![License](https://poser.pugx.org/aheiland/fregata-symfony-bundle/license)](//packagist.org/packages/aheiland/fregata-symfony-bundle)
 
 **Fregata** is a data migration framework. You can use it to migrate any kind of data, but it has features to help you
 migrate between different DBMS or database structures.
