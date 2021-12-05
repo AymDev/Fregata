@@ -75,10 +75,16 @@ class MigrationTest extends TestCase
         $this->expectException(MigrationException::class);
         $this->expectExceptionCode(1619911058924);
 
+        // Mocks are created in different ways to get different class names
+        $circularFirstMigrator = $this->getMockBuilder(DependentMigratorInterface::class)->getMockForAbstractClass();
+        $circularSecondMigrator = $this->createMock(DependentMigratorInterface::class);
+        $circularFirstMigrator->method('getDependencies')->willReturn([get_class($circularSecondMigrator)]);
+        $circularSecondMigrator->method('getDependencies')->willReturn([get_class($circularFirstMigrator)]);
+
         $migration = new Migration();
 
-        $migration->add(new CircularFirstMigrator());
-        $migration->add(new CircularSecondMigrator());
+        $migration->add($circularFirstMigrator);
+        $migration->add($circularSecondMigrator);
 
         $migration->getMigrators();
     }
@@ -117,32 +123,4 @@ class MigrationTest extends TestCase
         self::assertCount(1, $migration->getBeforeTasks());
         self::assertCount(1, $migration->getAfterTasks());
     }
-}
-
-/**
- * Circular dependency mocks
- * @see MigrationTest::testCircularDependencyDetection()
- */
-class CircularFirstMigrator implements DependentMigratorInterface
-{
-    public function getDependencies(): array
-    {
-        return [CircularSecondMigrator::class];
-    }
-
-    public function getPuller(): PullerInterface {}
-    public function getPusher(): PusherInterface {}
-    public function getExecutor(): Executor {}
-}
-
-class CircularSecondMigrator implements DependentMigratorInterface
-{
-    public function getDependencies(): array
-    {
-        return [CircularFirstMigrator::class];
-    }
-
-    public function getPuller(): PullerInterface {}
-    public function getPusher(): PusherInterface {}
-    public function getExecutor(): Executor {}
 }

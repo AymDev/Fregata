@@ -54,14 +54,18 @@ class FregataExtensionTest extends TestCase
         $extension->load([$configuration], $container);
 
         // Migration
-        self::assertTrue($container->has('fregata.migration.test_migration'));
+        $testMigrationId = 'fregata.migration.test_migration';
+        self::assertTrue($container->has($testMigrationId));
 
         // Migrators
-        self::assertTrue($container->has('fregata.migration.test_migration.migrator.fregata_tests_configuration_fixtures_extension_test_directory_migrator'));
-        self::assertTrue($container->has('fregata.migration.test_migration.migrator.fregata_tests_configuration_extension_test_migrator'));
+        $firstMigratorId = $testMigrationId;
+        $firstMigratorId .= '.migrator.fregata_tests_configuration_fixtures_extension_test_directory_migrator';
+        self::assertTrue($container->has($firstMigratorId));
+        $secondMigratorId = $testMigrationId . '.migrator.fregata_tests_configuration_extension_test_migrator';
+        self::assertTrue($container->has($secondMigratorId));
 
         // Migrators have autowiring
-        $migratorDefinition = $container->getDefinition('fregata.migration.test_migration.migrator.fregata_tests_configuration_extension_test_migrator');
+        $migratorDefinition = $container->getDefinition($secondMigratorId);
         self::assertTrue($migratorDefinition->isAutowired());
     }
 
@@ -87,13 +91,15 @@ class FregataExtensionTest extends TestCase
         $extension->load([$configuration], $container);
 
         // Migration
-        self::assertTrue($container->has('fregata.migration.test_migration'));
+        $testMigrationId = 'fregata.migration.test_migration';
+        self::assertTrue($container->has($testMigrationId));
 
         // Task
-        self::assertTrue($container->has('fregata.migration.test_migration.task.before.fregata_tests_configuration_extension_test_task'));
+        $taskId = $testMigrationId . '.task.before.fregata_tests_configuration_extension_test_task';
+        self::assertTrue($container->has($taskId));
 
         // Before tasks have autowiring
-        $taskDefinition = $container->getDefinition('fregata.migration.test_migration.task.before.fregata_tests_configuration_extension_test_task');
+        $taskDefinition = $container->getDefinition($taskId);
         self::assertTrue($taskDefinition->isAutowired());
     }
 
@@ -119,13 +125,15 @@ class FregataExtensionTest extends TestCase
         $extension->load([$configuration], $container);
 
         // Migration
-        self::assertTrue($container->has('fregata.migration.test_migration'));
+        $testMigrationId = 'fregata.migration.test_migration';
+        self::assertTrue($container->has($testMigrationId));
 
         // Task
-        self::assertTrue($container->has('fregata.migration.test_migration.task.after.fregata_tests_configuration_extension_test_task'));
+        $taskId = $testMigrationId . '.task.after.fregata_tests_configuration_extension_test_task';
+        self::assertTrue($container->has($taskId));
 
         // After tasks have autowiring
-        $taskDefinition = $container->getDefinition('fregata.migration.test_migration.task.after.fregata_tests_configuration_extension_test_task');
+        $taskDefinition = $container->getDefinition($taskId);
         self::assertTrue($taskDefinition->isAutowired());
     }
 
@@ -171,7 +179,7 @@ class FregataExtensionTest extends TestCase
         ]);
 
         // Create kernel
-        $kernel = new class($fileSystem) extends AbstractFregataKernel {
+        $kernel = new class ($fileSystem) extends AbstractFregataKernel {
             private vfsStreamDirectory $vfs;
 
             public function __construct(vfsStreamDirectory $vfs)
@@ -234,9 +242,15 @@ class ExtensionTestMigrator implements MigratorInterface
         return $this->context;
     }
 
-    public function getPuller(): PullerInterface {}
-    public function getPusher(): PusherInterface {}
-    public function getExecutor(): Executor {}
+    public function getPuller(): PullerInterface
+    {
+    }
+    public function getPusher(): PusherInterface
+    {
+    }
+    public function getExecutor(): Executor
+    {
+    }
 }
 
 /**
@@ -246,5 +260,7 @@ class ExtensionTestMigrator implements MigratorInterface
  */
 class ExtensionTestTask implements TaskInterface
 {
-    public function execute(): ?string {}
+    public function execute(): ?string
+    {
+    }
 }

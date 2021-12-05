@@ -108,22 +108,37 @@ class MigrationListCommandTest extends TestCase
  * Mocks
  * @see MigrationListCommandTest::testListMigrationsWithMigrators()
  */
-class MigrationListCommandFirstMigrator implements MigratorInterface {
-    public function getPuller(): PullerInterface {}
-    public function getPusher(): PusherInterface {}
-    public function getExecutor(): Executor {}
+class MigrationListCommandFirstMigrator implements MigratorInterface
+{
+    public function getPuller(): PullerInterface
+    {
+    }
+    public function getPusher(): PusherInterface
+    {
+    }
+    public function getExecutor(): Executor
+    {
+    }
 }
 
-class MigrationListCommandSecondMigrator extends MigrationListCommandFirstMigrator {}
+class MigrationListCommandSecondMigrator extends MigrationListCommandFirstMigrator
+{
+}
 
 /**
  * Mocks
  * @see MigrationListCommandTest::testListMigrationsWithTasks()
  */
-class MigrationListCommandBeforeTask implements TaskInterface {
-    public function execute(): ?string {}
+class MigrationListCommandBeforeTask implements TaskInterface
+{
+    public function execute(): ?string
+    {
+    }
 }
 
-class MigrationListCommandAfterTask implements TaskInterface {
-    public function execute(): ?string {}
+class MigrationListCommandAfterTask implements TaskInterface
+{
+    public function execute(): ?string
+    {
+    }
 }

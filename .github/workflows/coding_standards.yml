@@ -1,24 +1,10 @@
-name: Unit Test Suite
+name: Coding Standards
 on: [push, pull_request]
 
 jobs:
-    unit-tests:
-        name: PHPUnit test suite
+    coding-standards:
+        name: PHP CodeSniffer
         runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                php: [ '7.4', '8.0', '8.1' ]
-
-        services:
-            # MySQL source DB
-            mysql:
-                image: mysql:5.7
-                env:
-                    MYSQL_ROOT_PASSWORD: root
-                    MYSQL_DATABASE: fregata_source
-                ports:
-                    - 3306:3306
-                options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
         steps:
             # Setup
@@ -28,9 +14,8 @@ jobs:
             -   name: PHP setup
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-version: ${{ matrix.php }}
+                    php-version: 8.1
                     extensions: json pdo_mysql
-                    coverage: xdebug
 
             # Cache Composer dependencies
             -   name: Get composer cache directory
@@ -41,12 +26,12 @@ jobs:
                 uses: actions/cache@v1
                 with:
                     path: ${{ steps.composer-cache.outputs.dir }}
-                    key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+                    key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
                     restore-keys: ${{ runner.os }}-composer-
 
             -   name: Install dependencies
                 run: composer install --prefer-dist
 
-            # Run tests suite
-            -   name: Run test suite
-                run: php vendor/bin/phpunit --coverage-text
+            # Run PHP CodeSniffer
+            -   name: Run PHP CodeSniffer
+                run: php vendor/bin/phpcs

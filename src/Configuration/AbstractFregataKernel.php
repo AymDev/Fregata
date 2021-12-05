@@ -106,7 +106,8 @@ abstract class AbstractFregataKernel
 
         // Set configuration directory of the application
         if (false === is_dir($this->getConfigurationDirectory())) {
-            $configurationDirectory = realpath($this->getConfigurationDirectory()) ?: $this->getConfigurationDirectory();
+            $configurationDirectory = realpath($this->getConfigurationDirectory())
+                ?: $this->getConfigurationDirectory();
             throw ConfigurationException::invalidConfigurationDirectory($configurationDirectory);
         }
         $containerBuilder->setParameter('fregata.root_dir', $this->getRootDirectory());

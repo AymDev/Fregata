@@ -122,7 +122,7 @@ class Migration
         // Sort
         try {
             $sortedMigrators = $sorter->sort();
-        } catch (CircularDependencyException|ElementNotFoundException $exception) {
+        } catch (CircularDependencyException | ElementNotFoundException $exception) {
             throw MigrationException::invalidMigratorDependencies($exception);
         }
 

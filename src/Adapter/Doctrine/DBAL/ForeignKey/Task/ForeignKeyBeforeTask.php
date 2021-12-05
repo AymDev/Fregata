@@ -73,35 +73,6 @@ class ForeignKeyBeforeTask implements TaskInterface
         $connection->getSchemaManager()->alterTable($tableDiff);
     }
 
-//    private function createReferencingColumnCopy(Connection $connection, ForeignKey $foreignKey): void
-//    {
-//        // Create copy columns
-//        $table = $connection->getSchemaManager()->listTableDetails($foreignKey->getTableName());
-//        $columns = array_map(function (string $columnName) use ($table) {
-//            return [
-//                'original' => $columnName,
-//                'copy'     => $this->columnHelper->buildNameForReferencingColumn($table->getName(), $columnName),
-//                'index'    => $this->columnHelper->buildNameForReferencingColumnIndex($table->getName(), $columnName),
-//            ];
-//        }, $foreignKey->getConstraint()->getLocalColumns());
-//
-//        $tableDiff = $this->createCopyColumns($table, $columns);
-//        $connection->getSchemaManager()->alterTable($tableDiff);
-//
-//        // Drops given columns NOT NULL
-//        $nullableColumnNames = array_intersect($foreignKey->getConstraint()->getLocalColumns(), $foreignKey->getAllowNull());
-//
-//        foreach ($nullableColumnNames as $columnName) {
-//            $originalColumn = $table->getColumn($columnName);
-//            $changedColumn = clone $originalColumn;
-//
-//            $changedColumn->setNotnull(false);
-//            $tableDiff->changedColumns[] = new ColumnDiff($columnName, $changedColumn, ['notnull'], $originalColumn);
-//        }
-//
-//        $connection->getSchemaManager()->alterTable($tableDiff);
-//    }
-
     private function createReferencingColumnCopy(Connection $connection, ForeignKey $foreignKey): void
     {
         // Create copy columns

@@ -3,5 +3,6 @@
 composer.lock
 
 .phpunit.result.cache
+.phpcs-cache
 
 /_implementation/

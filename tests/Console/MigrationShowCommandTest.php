@@ -100,22 +100,37 @@ class MigrationShowCommandTest extends TestCase
  * Mocks
  * @see MigrationShowCommandTest::testListMigrationMigrators()
  */
-class MigrationShowCommandFirstMigrator implements MigratorInterface {
-    public function getPuller(): PullerInterface {}
-    public function getPusher(): PusherInterface {}
-    public function getExecutor(): Executor {}
+class MigrationShowCommandFirstMigrator implements MigratorInterface
+{
+    public function getPuller(): PullerInterface
+    {
+    }
+    public function getPusher(): PusherInterface
+    {
+    }
+    public function getExecutor(): Executor
+    {
+    }
 }
 
-class MigrationShowCommandSecondMigrator extends MigrationShowCommandFirstMigrator {}
+class MigrationShowCommandSecondMigrator extends MigrationShowCommandFirstMigrator
+{
+}
 
 /**
  * Mocks
  * @see MigrationShowCommandTest::testListMigrationsWithTasks()
  */
-class MigrationShowCommandBeforeTask implements TaskInterface {
-    public function execute(): ?string {}
+class MigrationShowCommandBeforeTask implements TaskInterface
+{
+    public function execute(): ?string
+    {
+    }
 }
 
-class MigrationShowCommandAfterTask implements TaskInterface {
-    public function execute(): ?string {}
+class MigrationShowCommandAfterTask implements TaskInterface
+{
+    public function execute(): ?string
+    {
+    }
 }
