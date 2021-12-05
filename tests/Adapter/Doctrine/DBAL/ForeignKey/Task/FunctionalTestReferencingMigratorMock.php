@@ -27,7 +27,7 @@ class FunctionalTestReferencingMigratorMock implements HasForeignKeysInterface, 
 
     public function getPuller(): PullerInterface
     {
-        return new class($this->connection) implements PullerInterface {
+        return new class ($this->connection) implements PullerInterface {
             private Connection $connection;
 
             public function __construct(Connection $connection)
@@ -53,7 +53,7 @@ class FunctionalTestReferencingMigratorMock implements HasForeignKeysInterface, 
 
     public function getPusher(): PusherInterface
     {
-        return new class($this->connection, $this->columnHelper) implements PusherInterface {
+        return new class ($this->connection, $this->columnHelper) implements PusherInterface {
             private Connection $connection;
             private CopyColumnHelper $columnHelper;
 

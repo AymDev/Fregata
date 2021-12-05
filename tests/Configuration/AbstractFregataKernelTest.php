@@ -22,7 +22,7 @@ class AbstractFregataKernelTest extends TestCase
         ]);
 
         // Create kernel
-        $kernel = new class($fileSystem) extends AbstractFregataKernel {
+        $kernel = new class ($fileSystem) extends AbstractFregataKernel {
             private vfsStreamDirectory $vfs;
 
             public function __construct(vfsStreamDirectory $vfs)
@@ -69,7 +69,7 @@ class AbstractFregataKernelTest extends TestCase
         $this->expectExceptionCode($exceptionCode);
 
         // Create kernel
-        $kernel = new class($cachePath, $configPath) extends AbstractFregataKernel {
+        $kernel = new class ($cachePath, $configPath) extends AbstractFregataKernel {
             private string $cacheDir;
             private string $configDir;
 

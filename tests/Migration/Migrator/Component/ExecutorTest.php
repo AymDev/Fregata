@@ -68,7 +68,7 @@ class BatchPuller implements BatchPullerInterface
 
     public function pull(): \Generator
     {
-        foreach($this->items as $item) {
+        foreach ($this->items as $item) {
             yield [$item];
         }
     }

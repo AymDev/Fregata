@@ -212,33 +212,10 @@ class ForeignKeyAfterTask implements TaskInterface
         return $connection->executeUpdate($updateQuery);
     }
 
-//    private function dropReferencedCopyColumns(Connection $connection, ForeignKey $foreignKey)
-//    {
-//        $table = $connection->getSchemaManager()->listTableDetails($foreignKey->getConstraint()->getForeignTableName());
-//
-//        $removedColumns = [];
-//        $removedIndexes = [];
-//
-//        foreach ($foreignKey->getConstraint()->getForeignColumns() as $columnName) {
-//            $removedColumns[] = $this->columnHelper->foreignColumn($table->getName(), $columnName);
-//            $removedIndexes[] = $this->columnHelper->foreignColumnIndex($table->getName(), $columnName);
-//        }
-//
-//        $connection->getSchemaManager()->alterTable(new TableDiff(
-//            $table->getName(),
-//            [],
-//            [],
-//            $removedColumns,
-//            [],
-//            [],
-//            $removedIndexes,
-//            $table
-//        ));
-//    }
-
     private function dropReferencedCopyColumns(Connection $connection, ForeignKey $foreignKey)
     {
-        $originalTable = $connection->getSchemaManager()->listTableDetails($foreignKey->getConstraint()->getForeignTableName());
+        $foreignTableName = $foreignKey->getConstraint()->getForeignTableName();
+        $originalTable = $connection->getSchemaManager()->listTableDetails($foreignTableName);
         $changedTable = clone $originalTable;
 
         foreach ($foreignKey->getConstraint()->getForeignColumns() as $columnName) {

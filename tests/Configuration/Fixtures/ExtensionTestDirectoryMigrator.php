@@ -9,7 +9,13 @@ use Fregata\Migration\Migrator\MigratorInterface;
 
 class ExtensionTestDirectoryMigrator implements MigratorInterface
 {
-    public function getPuller(): PullerInterface {}
-    public function getPusher(): PusherInterface {}
-    public function getExecutor(): Executor {}
+    public function getPuller(): PullerInterface
+    {
+    }
+    public function getPusher(): PusherInterface
+    {
+    }
+    public function getExecutor(): Executor
+    {
+    }
 }

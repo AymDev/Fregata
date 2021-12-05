@@ -72,7 +72,8 @@ class MigrationExecuteCommandTest extends TestCase
         $tester->execute(
             [
                 'migration' => 'unknown',
-            ], [
+            ],
+            [
                 // To get a ConsoleOutput
                 'capture_stderr_separately' => true,
             ]
@@ -87,7 +88,8 @@ class MigrationExecuteCommandTest extends TestCase
  * Mocks
  * @see MigrationExecuteCommandTest::testExecution()
  */
-class MigrationExecuteCommandMigrator implements MigratorInterface {
+class MigrationExecuteCommandMigrator implements MigratorInterface
+{
     private ?PusherInterface $pusher = null;
 
     public function getPuller(): PullerInterface
@@ -127,7 +129,8 @@ class MigrationExecuteCommandMigrator implements MigratorInterface {
     }
 }
 
-class MigrationExecuteCommandTask implements TaskInterface {
+class MigrationExecuteCommandTask implements TaskInterface
+{
     public function execute(): ?string
     {
         return '[EXECUTED]';

@@ -94,10 +94,18 @@ class ForeignKeyBeforeTaskTest extends AbstractDbalTestCase
                 return DriverManager::getConnection(['url' => 'sqlite:///:memory:']);
             }
 
-            public function getForeignKeys(): array {}
-            public function getPuller(): PullerInterface {}
-            public function getPusher(): PusherInterface {}
-            public function getExecutor(): Executor {}
+            public function getForeignKeys(): array
+            {
+            }
+            public function getPuller(): PullerInterface
+            {
+            }
+            public function getPusher(): PusherInterface
+            {
+            }
+            public function getExecutor(): Executor
+            {
+            }
         });
         $context = new MigrationContext($migration, 'incompatible');
 
@@ -109,7 +117,7 @@ class ForeignKeyBeforeTaskTest extends AbstractDbalTestCase
 
 /**
  * Mock
- * @see ForeignKeyAfterTaskTest::testSavedPrimaryKeyColumns()
+ * @see ForeignKeyBeforeTaskTest::testCopyKeyColumns()
  */
 class ForeignKeyBeforeTaskMigrator implements HasForeignKeysInterface
 {
@@ -133,7 +141,13 @@ class ForeignKeyBeforeTaskMigrator implements HasForeignKeysInterface
         );
     }
 
-    public function getPuller(): PullerInterface {}
-    public function getPusher(): PusherInterface {}
-    public function getExecutor(): Executor {}
+    public function getPuller(): PullerInterface
+    {
+    }
+    public function getPusher(): PusherInterface
+    {
+    }
+    public function getExecutor(): Executor
+    {
+    }
 }

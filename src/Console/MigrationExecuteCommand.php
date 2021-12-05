@@ -125,7 +125,9 @@ class MigrationExecuteCommand extends Command
         $io->title(sprintf('%d - Executing "%s" :', $migratorIndex, get_class($migrator)));
         $totalPushCount = 0;
 
-        foreach ($migrator->getExecutor()->execute($migrator->getPuller(), $migrator->getPusher()) as $pushedItemCount) {
+        $puller = $migrator->getPuller();
+        $pusher = $migrator->getPusher();
+        foreach ($migrator->getExecutor()->execute($puller, $pusher) as $pushedItemCount) {
             $totalPushCount += $pushedItemCount;
             $io->write(sprintf('%s %d', self::LINE_ERASER, $totalPushCount));
 
@@ -148,7 +150,9 @@ class MigrationExecuteCommand extends Command
         $io->title(sprintf('%d - Executing "%s" [%d items] :', $migratorIndex, get_class($migrator), $itemCount));
         $io->progressStart($itemCount);
 
-        foreach ($migrator->getExecutor()->execute($migrator->getPuller(), $migrator->getPusher()) as $pushedItemCount) {
+        $puller = $migrator->getPuller();
+        $pusher = $migrator->getPusher();
+        foreach ($migrator->getExecutor()->execute($puller, $pusher) as $pushedItemCount) {
             $io->progressAdvance($pushedItemCount);
         }
 
@@ -171,7 +175,9 @@ class MigrationExecuteCommand extends Command
 
         $section->writeln(sprintf('Migrated items: %d', $totalPushCount));
 
-        foreach ($migrator->getExecutor()->execute($migrator->getPuller(), $migrator->getPusher()) as $pushedItemCount) {
+        $puller = $migrator->getPuller();
+        $pusher = $migrator->getPusher();
+        foreach ($migrator->getExecutor()->execute($puller, $pusher) as $pushedItemCount) {
             $totalPushCount += $pushedItemCount;
             $section->overwrite(sprintf('Migrated items: %d', $totalPushCount));
         }

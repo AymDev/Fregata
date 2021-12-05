@@ -24,7 +24,7 @@ class FregataExtension extends Extension
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
-        
+
         $this->createServiceDefinitions($container);
 
         // Save complete configuration for access to migrations referenced as parent
