@@ -99,7 +99,7 @@ class ForeignKeyAfterTaskTest extends AbstractDbalTestCase
             ->from('target_referenced')
             ->execute()
             ->fetchAll(FetchMode::COLUMN);
-        self::assertSame(['1', '2', '3'], $referencedData);
+        self::assertSame([1, 2, 3], array_map('intval', $referencedData));
 
         $referencingData = $this->connection->createQueryBuilder()
             ->select('*')
@@ -107,6 +107,6 @@ class ForeignKeyAfterTaskTest extends AbstractDbalTestCase
             ->orderBy('fk', 'DESC')
             ->execute()
             ->fetchAll(FetchMode::COLUMN);
-        self::assertSame(['3', '2', '2', '1'], $referencingData);
+        self::assertSame([3, 2, 2, 1], array_map('intval', $referencingData));
     }
 }

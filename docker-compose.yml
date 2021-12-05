@@ -8,14 +8,3 @@ services:
         environment:
             MYSQL_ROOT_PASSWORD: root
             MYSQL_DATABASE: fregata_source
-
-    app:
-        build:
-            context: .
-        container_name: fregata_app
-        restart: on-failure
-        tty: true
-        stdin_open: true
-        network_mode: host
-        volumes:
-            - ./:/var/www/html

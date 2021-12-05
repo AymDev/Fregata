@@ -536,8 +536,7 @@ After tasks: 1
 
 # Contributing
 
-A **Docker** setup is available, run `make start` to start the services and `make shell` to open the command
-line inside the **PHP** container.
+A **Docker** setup is available, providing a **MySQL 5.7** service.
 
 If you want to test the implementation of the framework (using a **Composer**
 [path repository](https://getcomposer.org/doc/05-repositories.md#path)), install it in a `_implementation`
