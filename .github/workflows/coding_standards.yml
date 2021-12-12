@@ -3,7 +3,7 @@ on: [push, pull_request]
 
 jobs:
     coding-standards:
-        name: PHP CodeSniffer
+        name: PHP CodeSniffer & PHPCPD
         runs-on: ubuntu-latest
 
         steps:
@@ -35,3 +35,7 @@ jobs:
             # Run PHP CodeSniffer
             -   name: Run PHP CodeSniffer
                 run: php vendor/bin/phpcs
+
+            # Run PHP Copy Paste Detector
+            -   name: Run PHP CPD
+                run: php vendor/bin/phpcpd --exclude ./vendor .

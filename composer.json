@@ -47,7 +47,8 @@
         "phpcompatibility/php-compatibility": "^9.3",
         "phpstan/phpstan": "^1.2",
         "phpstan/phpstan-phpunit": "^1.0",
-        "phpstan/phpstan-strict-rules": "^1.1"
+        "phpstan/phpstan-strict-rules": "^1.1",
+        "sebastian/phpcpd": "^6.0"
     },
     "bin": ["bin/fregata"],
     "extra": {

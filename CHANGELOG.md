@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - **Symfony 6** support
 
+### Deprecated
+ - usage of `Executor` without **puller**.
+
 ## [1.0.3] - 2021-05-24
 ### Fixed
  - Added missing `CopyColumnHelper` service definition
