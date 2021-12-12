@@ -7,23 +7,20 @@ use Fregata\Configuration\FregataExtension;
 use Fregata\Migration\Migration;
 use Fregata\Migration\MigrationContext;
 use Fregata\Migration\MigrationRegistry;
-use Fregata\Migration\Migrator\Component\Executor;
-use Fregata\Migration\Migrator\Component\PullerInterface;
-use Fregata\Migration\Migrator\Component\PusherInterface;
 use Fregata\Migration\Migrator\MigratorInterface;
 use Fregata\Migration\TaskInterface;
-use Fregata\Tests\Configuration\Fixtures\ExtensionTestDirectoryMigrator;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\String\UnicodeString;
 
 class FregataExtensionTest extends TestCase
 {
     /**
      * Migration services must be defined
      */
-    public function testMigrationServicesDefinitions()
+    public function testMigrationServicesDefinitions(): void
     {
         $container = new ContainerBuilder();
         $extension = new FregataExtension();
@@ -38,16 +35,21 @@ class FregataExtensionTest extends TestCase
     /**
      * Migration services must be defined
      */
-    public function testMigrationDefinition()
+    public function testMigrationDefinition(): void
     {
         $container = new ContainerBuilder();
         $extension = new FregataExtension();
+
+        $migrator = self::getMockForAbstractClass(MigratorInterface::class);
+        $migratorClass = get_class($migrator);
 
         $configuration = [
             'migrations' => [
                 'test_migration' => [
                     'migrators_directory' => __DIR__ . '/Fixtures',
-                    'migrators' => [ExtensionTestMigrator::class],
+                    'migrators' => [
+                        $migratorClass
+                    ],
                 ]
             ]
         ];
@@ -61,7 +63,12 @@ class FregataExtensionTest extends TestCase
         $firstMigratorId = $testMigrationId;
         $firstMigratorId .= '.migrator.fregata_tests_configuration_fixtures_extension_test_directory_migrator';
         self::assertTrue($container->has($firstMigratorId));
-        $secondMigratorId = $testMigrationId . '.migrator.fregata_tests_configuration_extension_test_migrator';
+
+        $secondMigratorId = sprintf(
+            '%s.migrator.%s',
+            $testMigrationId,
+            (new UnicodeString($migratorClass))->snake()
+        );
         self::assertTrue($container->has($secondMigratorId));
 
         // Migrators have autowiring
@@ -72,17 +79,20 @@ class FregataExtensionTest extends TestCase
     /**
      * Before tasks must be defined
      */
-    public function testBeforeTaskDefinitions()
+    public function testBeforeTaskDefinitions(): void
     {
         $container = new ContainerBuilder();
         $extension = new FregataExtension();
+
+        $task = self::getMockForAbstractClass(TaskInterface::class);
+        $taskClass = get_class($task);
 
         $configuration = [
             'migrations' => [
                 'test_migration' => [
                     'tasks' => [
                         'before' => [
-                            ExtensionTestTask::class,
+                            $taskClass,
                         ]
                     ]
                 ]
@@ -95,7 +105,11 @@ class FregataExtensionTest extends TestCase
         self::assertTrue($container->has($testMigrationId));
 
         // Task
-        $taskId = $testMigrationId . '.task.before.fregata_tests_configuration_extension_test_task';
+        $taskId = sprintf(
+            '%s.task.before.%s',
+            $testMigrationId,
+            (new UnicodeString($taskClass))->snake()
+        );
         self::assertTrue($container->has($taskId));
 
         // Before tasks have autowiring
@@ -106,17 +120,20 @@ class FregataExtensionTest extends TestCase
     /**
      * After tasks must be defined
      */
-    public function testAfterTaskDefinitions()
+    public function testAfterTaskDefinitions(): void
     {
         $container = new ContainerBuilder();
         $extension = new FregataExtension();
+
+        $task = self::getMockForAbstractClass(TaskInterface::class);
+        $taskClass = get_class($task);
 
         $configuration = [
             'migrations' => [
                 'test_migration' => [
                     'tasks' => [
                         'after' => [
-                            ExtensionTestTask::class,
+                            $taskClass,
                         ]
                     ]
                 ]
@@ -129,7 +146,11 @@ class FregataExtensionTest extends TestCase
         self::assertTrue($container->has($testMigrationId));
 
         // Task
-        $taskId = $testMigrationId . '.task.after.fregata_tests_configuration_extension_test_task';
+        $taskId = sprintf(
+            '%s.task.after.%s',
+            $testMigrationId,
+            (new UnicodeString($taskClass))->snake()
+        );
         self::assertTrue($container->has($taskId));
 
         // After tasks have autowiring
@@ -140,7 +161,7 @@ class FregataExtensionTest extends TestCase
     /**
      * Context must be defined
      */
-    public function testContextDefinitions()
+    public function testContextDefinitions(): void
     {
         $container = new ContainerBuilder();
         $extension = new FregataExtension();
@@ -159,8 +180,12 @@ class FregataExtensionTest extends TestCase
     /**
      * Context must be defined according to the migration
      */
-    public function testContextIsAccurate()
+    public function testContextIsAccurate(): void
     {
+        $migrator = self::getMockForAbstractClass(MigratorInterface::class);
+        $migratorClass = get_class($migrator);
+        $taskClass = TestTask::class;
+
         $fileSystem = vfsStream::setup('fregata-extension-test', null, [
             'config' => [
                 'fregata.yaml' => <<<YAML
@@ -170,7 +195,10 @@ class FregataExtensionTest extends TestCase
                                 options:
                                     foo: bar
                                 migrators:
-                                    - Fregata\Tests\Configuration\ExtensionTestMigrator
+                                    - ${migratorClass}
+                                tasks:
+                                    before:
+                                        - ${taskClass}
                             child_migration:
                                 parent: test_migration
                     YAML,
@@ -209,13 +237,16 @@ class FregataExtensionTest extends TestCase
         $registry = $container->get('fregata.migration_registry');
         self::assertInstanceOf(MigrationRegistry::class, $registry);
 
+        /** @var Migration $migration */
         $migration = $registry->get('child_migration');
 
-        /** @var ExtensionTestMigrator $migrator */
         $migrator = $migration->getMigrators()[0];
-        self::assertInstanceOf(ExtensionTestMigrator::class, $migrator);
+        self::assertInstanceOf($migratorClass, $migrator);
 
-        $context = $migrator->getContext();
+        /** @var TestTask $task */
+        $task = $migration->getBeforeTasks()[0];
+        $context = $task->getContext();
+
         self::assertInstanceOf(MigrationContext::class, $context);
         self::assertSame($migration, $context->getMigration());
         self::assertSame(['foo' => 'bar'], $context->getOptions());
@@ -226,9 +257,9 @@ class FregataExtensionTest extends TestCase
 
 /**
  * Mock
- * @see FregataExtensionTest::testMigrationDefinition
+ * @see FregataExtensionTest::testContextIsAccurate()
  */
-class ExtensionTestMigrator implements MigratorInterface
+class TestTask implements TaskInterface
 {
     private MigrationContext $context;
 
@@ -237,30 +268,13 @@ class ExtensionTestMigrator implements MigratorInterface
         $this->context = $context;
     }
 
+    public function execute(): ?string
+    {
+        return null;
+    }
+
     public function getContext(): MigrationContext
     {
         return $this->context;
-    }
-
-    public function getPuller(): PullerInterface
-    {
-    }
-    public function getPusher(): PusherInterface
-    {
-    }
-    public function getExecutor(): Executor
-    {
-    }
-}
-
-/**
- * Mock
- * @see FregataExtensionTest::testBeforeTaskDefinitions
- * @see FregataExtensionTest::testAfterTaskDefinitions
- */
-class ExtensionTestTask implements TaskInterface
-{
-    public function execute(): ?string
-    {
     }
 }

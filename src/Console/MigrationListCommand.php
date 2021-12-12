@@ -24,7 +24,7 @@ class MigrationListCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('List all registered migrations with additional informations.')

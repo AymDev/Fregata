@@ -16,6 +16,16 @@ class Executor
      */
     public function execute(?PullerInterface $puller, PusherInterface $pusher): \Generator
     {
+        // No puller
+        if (null === $puller) {
+            trigger_deprecation(
+                'aymdev/fregata',
+                'v1.1',
+                'Running a migrator without a puller is deprecated and will be removed in v2. Use a task instead.'
+            );
+            return;
+        }
+
         // Pull by batch
         if ($puller instanceof BatchPullerInterface) {
             foreach ($puller->pull() as $batch) {
@@ -27,8 +37,14 @@ class Executor
         }
 
         // Default migration (item by item)
-        foreach ($puller->pull() as $item) {
-            yield $pusher->push($item);
+        $data = $puller->pull();
+
+        if (is_iterable($data)) {
+            foreach ($data as $item) {
+                yield $pusher->push($item);
+            }
+        } else {
+            yield $pusher->push($data);
         }
     }
 }

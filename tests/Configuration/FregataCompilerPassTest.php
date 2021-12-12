@@ -17,7 +17,7 @@ class FregataCompilerPassTest extends TestCase
     /**
      * Migration registry & executor must be defined in the container
      */
-    public function testDefaultDefinitions()
+    public function testDefaultDefinitions(): void
     {
         $container = new ContainerBuilder();
         $compilerPass = new FregataCompilerPass();
@@ -32,7 +32,7 @@ class FregataCompilerPassTest extends TestCase
     /**
      * Migrations must be registered in the registry
      */
-    public function testMigrationRegistrationInRegistry()
+    public function testMigrationRegistrationInRegistry(): void
     {
         $migrationDefinition = new Definition(Migration::class);
         $migrationDefinition->addTag('fregata.migration', ['name' => 'test']);

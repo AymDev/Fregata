@@ -11,7 +11,7 @@ class MigrationContextTest extends TestCase
     /**
      * Testing basic usage
      */
-    public function testGetters()
+    public function testGetters(): void
     {
         $migration = new Migration();
         $name = 'test-migration';

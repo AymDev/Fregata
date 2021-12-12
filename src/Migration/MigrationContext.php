@@ -9,9 +9,13 @@ final class MigrationContext
 {
     private Migration $migration;
     private string $migrationName;
+    /** @var mixed[] */
     private array $options;
     private ?string $parentName;
 
+    /**
+     * @param mixed[]|null $options
+     */
     public function __construct(
         Migration $migration,
         string $migrationName,
@@ -42,6 +46,7 @@ final class MigrationContext
 
     /**
      * Get options for the migration as defined in the configuration
+     * @return mixed[]
      */
     public function getOptions(): array
     {

@@ -17,7 +17,7 @@ class CommandsCompilerPassTest extends TestCase
     /**
      * Application and commands must be defined in the container
      */
-    public function testCommandsDefinitions()
+    public function testCommandsDefinitions(): void
     {
         $container = new ContainerBuilder();
         $compilerPass = new CommandsCompilerPass();

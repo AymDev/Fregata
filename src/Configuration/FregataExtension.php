@@ -18,9 +18,13 @@ use Symfony\Component\String\UnicodeString;
 
 class FregataExtension extends Extension
 {
+    /** @phpstan-var migrationConfig[] */
     private array $configuration;
 
-    public function load(array $configs, ContainerBuilder $container)
+    /**
+     * @param mixed[] $configs
+     */
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
@@ -45,6 +49,9 @@ class FregataExtension extends Extension
         ;
     }
 
+    /**
+     * @phpstan-param migrationConfig $migrationConfig
+     */
     protected function registerMigration(ContainerBuilder $container, array $migrationConfig): void
     {
         // Migration definition
@@ -98,6 +105,10 @@ class FregataExtension extends Extension
         }
     }
 
+    /**
+     * @phpstan-param migrationConfig $migrationConfig
+     * @return mixed[]
+     */
     protected function findOptionsForMigration(array $migrationConfig): array
     {
         $options = [];
@@ -112,6 +123,10 @@ class FregataExtension extends Extension
         return array_merge($options, $migrationConfig['options'] ?? []);
     }
 
+    /**
+     * @phpstan-param migrationConfig $migrationConfig
+     * @return class-string[]
+     */
     protected function findBeforeTaskForMigration(array $migrationConfig): array
     {
         $tasks = [];
@@ -126,6 +141,10 @@ class FregataExtension extends Extension
         return array_merge($tasks, $migrationConfig['tasks']['before'] ?? []);
     }
 
+    /**
+     * @phpstan-param migrationConfig $migrationConfig
+     * @return class-string[]
+     */
     protected function findAfterTaskForMigration(array $migrationConfig): array
     {
         $tasks = [];
@@ -140,6 +159,11 @@ class FregataExtension extends Extension
         return array_merge($tasks, $migrationConfig['tasks']['after'] ?? []);
     }
 
+    /**
+     * @param mixed[] $migrationConfig
+     * @phpstan-param migrationConfig $migrationConfig
+     * @return class-string[]
+     */
     protected function findMigratorsForMigration(array $migrationConfig): array
     {
         $migrators = [];
@@ -160,20 +184,22 @@ class FregataExtension extends Extension
         return array_merge($migrators, $migrationConfig['migrators'] ?? []);
     }
 
+    /**
+     * @return class-string[]
+     */
     protected function findMigratorsInDirectory(string $path): array
     {
         $finder = new Finder();
         $iterator = new ClassIterator($finder->in($path));
         $iterator->enableAutoloading();
 
+        /** @var ClassIterator<MigratorInterface> $iterator */
         $iterator = $iterator->type(MigratorInterface::class);
-
-        /** @var ClassIterator $iterator */
         $iterator = $iterator->where('isInstantiable', true);
 
         $classes = [];
 
-        /** @var \ReflectionClass $class */
+        /** @var \ReflectionClass<MigratorInterface> $class */
         foreach ($iterator as $class) {
             $classes[] = $class->getName();
         }

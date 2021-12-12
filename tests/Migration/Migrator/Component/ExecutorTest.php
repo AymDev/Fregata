@@ -2,10 +2,11 @@
 
 namespace Fregata\Tests\Migration\Migrator\Component;
 
-use Fregata\Migration\Migrator\Component\BatchPullerInterface;
 use Fregata\Migration\Migrator\Component\Executor;
-use Fregata\Migration\Migrator\Component\PullerInterface;
-use Fregata\Migration\Migrator\Component\PusherInterface;
+use Fregata\Tests\Migration\Migrator\Component\Fixtures\FixturePullerInterface;
+use Fregata\Tests\Migration\Migrator\Component\Fixtures\TestBatchPuller;
+use Fregata\Tests\Migration\Migrator\Component\Fixtures\TestItemPuller;
+use Fregata\Tests\Migration\Migrator\Component\Fixtures\TestPusher;
 use PHPUnit\Framework\TestCase;
 
 class ExecutorTest extends TestCase
@@ -13,9 +14,9 @@ class ExecutorTest extends TestCase
     /**
      * @dataProvider providePuller
      */
-    public function testItemMigration(PullerInterface $puller)
+    public function testItemMigration(FixturePullerInterface $puller): void
     {
-        $pusher = new Pusher();
+        $pusher = new TestPusher();
         $executor = new Executor();
 
         $inserts = 0;
@@ -24,68 +25,17 @@ class ExecutorTest extends TestCase
         }
 
         self::assertSame($puller->count(), $inserts);
-        self::assertSame($puller->items, $pusher->data);
+        self::assertSame($puller->getItems(), $pusher->getData());
     }
 
+    /**
+     * @return FixturePullerInterface[][]
+     */
     public function providePuller(): array
     {
         return [
-            [new ItemPuller()],
-            [new BatchPuller()],
+            [new TestItemPuller()],
+            [new TestBatchPuller()],
         ];
-    }
-}
-
-/**
- * Mocks
- */
-class ItemPuller implements PullerInterface
-{
-    public array $items = [
-        'foo',
-        'bar',
-        'baz',
-    ];
-
-    public function pull()
-    {
-        return $this->items;
-    }
-
-    public function count(): ?int
-    {
-        return count($this->items);
-    }
-}
-
-class BatchPuller implements BatchPullerInterface
-{
-    public array $items = [
-        'boom',
-        'cow',
-        'milk',
-    ];
-
-    public function pull(): \Generator
-    {
-        foreach ($this->items as $item) {
-            yield [$item];
-        }
-    }
-
-    public function count(): ?int
-    {
-        return count($this->items);
-    }
-}
-
-class Pusher implements PusherInterface
-{
-    public array $data = [];
-
-    public function push($data): int
-    {
-        $this->data[] = $data;
-        return 1;
     }
 }

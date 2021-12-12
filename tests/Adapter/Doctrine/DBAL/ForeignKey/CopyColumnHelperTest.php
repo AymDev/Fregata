@@ -10,7 +10,7 @@ class CopyColumnHelperTest extends TestCase
     /**
      * Every generated column/index name must have a framework related prefix
      */
-    public function testPrefix()
+    public function testPrefix(): void
     {
         $helper = new CopyColumnHelper();
         $prefix = '_fregata_';
@@ -31,7 +31,7 @@ class CopyColumnHelperTest extends TestCase
     /**
      * Generated column/index names must be unique
      */
-    public function testGeneratedNamesAreUnique()
+    public function testGeneratedNamesAreUnique(): void
     {
         $helper = new CopyColumnHelper();
 

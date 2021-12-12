@@ -2,20 +2,16 @@
 
 namespace Fregata\Tests\Adapter\Doctrine\DBAL\ForeignKey\Task;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\ForwardCompatibility\DriverStatement;
 use Fregata\Adapter\Doctrine\DBAL\ForeignKey\CopyColumnHelper;
-use Fregata\Adapter\Doctrine\DBAL\ForeignKey\ForeignKey;
-use Fregata\Adapter\Doctrine\DBAL\ForeignKey\Migrator\HasForeignKeysInterface;
 use Fregata\Adapter\Doctrine\DBAL\ForeignKey\Task\ForeignKeyAfterTask;
 use Fregata\Adapter\Doctrine\DBAL\ForeignKey\Task\ForeignKeyBeforeTask;
 use Fregata\Migration\Migration;
 use Fregata\Migration\MigrationContext;
-use Fregata\Migration\Migrator\Component\Executor;
-use Fregata\Migration\Migrator\Component\PullerInterface;
-use Fregata\Migration\Migrator\Component\PusherInterface;
 use Fregata\Tests\Adapter\Doctrine\DBAL\AbstractDbalTestCase;
+use Fregata\Tests\Adapter\Doctrine\DBAL\Fixtures\TestReferencedMigrator;
+use Fregata\Tests\Adapter\Doctrine\DBAL\Fixtures\TestReferencingMigrator;
 
 class ForeignKeyAfterTaskTest extends AbstractDbalTestCase
 {
@@ -32,7 +28,7 @@ class ForeignKeyAfterTaskTest extends AbstractDbalTestCase
     /**
      * Copy columns must be deleted after migration and modified columns must be reset to NOT NULL
      */
-    public function testMigrationForeignKeys()
+    public function testMigrationForeignKeys(): void
     {
         // Database setup
         $this->connection->getWrappedConnection()->exec(<<<SQL
@@ -62,8 +58,8 @@ class ForeignKeyAfterTaskTest extends AbstractDbalTestCase
 
         // Setup task
         $migration = new Migration();
-        $migration->add(new FunctionalTestReferencingMigratorMock($this->connection, new CopyColumnHelper()));
-        $migration->add(new FunctionalTestReferencedMigratorMock($this->connection, new CopyColumnHelper()));
+        $migration->add(new TestReferencingMigrator($this->connection, new CopyColumnHelper()));
+        $migration->add(new TestReferencedMigrator($this->connection, new CopyColumnHelper()));
         $context = new MigrationContext($migration, 'copy_columns');
 
         // Execute before task
@@ -94,19 +90,21 @@ class ForeignKeyAfterTaskTest extends AbstractDbalTestCase
         self::assertTrue($originalColumn->getNotnull());
 
         // Check data
+        /** @var DriverStatement<int> $referencedData */
         $referencedData = $this->connection->createQueryBuilder()
             ->select('*')
             ->from('target_referenced')
-            ->execute()
-            ->fetchAll(FetchMode::COLUMN);
+            ->execute();
+        $referencedData = $referencedData->fetchAll(FetchMode::COLUMN);
         self::assertSame([1, 2, 3], array_map('intval', $referencedData));
 
+        /** @var DriverStatement<int> $referencingData */
         $referencingData = $this->connection->createQueryBuilder()
             ->select('*')
             ->from('target_referencing')
             ->orderBy('fk', 'DESC')
-            ->execute()
-            ->fetchAll(FetchMode::COLUMN);
+            ->execute();
+        $referencingData = $referencingData->fetchAll(FetchMode::COLUMN);
         self::assertSame([3, 2, 2, 1], array_map('intval', $referencingData));
     }
 }
