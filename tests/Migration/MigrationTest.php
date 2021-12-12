@@ -6,9 +6,6 @@ use Fregata\Migration\Migration;
 use Fregata\Migration\MigrationException;
 use Fregata\Migration\Migrator\DependentMigratorInterface;
 use Fregata\Migration\Migrator\MigratorInterface;
-use Fregata\Migration\Migrator\Component\PullerInterface;
-use Fregata\Migration\Migrator\Component\PusherInterface;
-use Fregata\Migration\Migrator\Component\Executor;
 use Fregata\Migration\TaskInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -17,7 +14,7 @@ class MigrationTest extends TestCase
     /**
      * Migrators can be added and listed
      */
-    public function testCanAddMigrator()
+    public function testCanAddMigrator(): void
     {
         $migration = new Migration();
 
@@ -35,7 +32,7 @@ class MigrationTest extends TestCase
     /**
      * Migrators must be sorted by their dependencies (topological sorting)
      */
-    public function testMigratorsAreTolologicallySorted()
+    public function testMigratorsAreTolologicallySorted(): void
     {
         $migration = new Migration();
 
@@ -55,7 +52,7 @@ class MigrationTest extends TestCase
     /**
      * Migrators must be unique in a migration
      */
-    public function testMigratorCannotBeAddedTwice()
+    public function testMigratorCannotBeAddedTwice(): void
     {
         $this->expectException(MigrationException::class);
         $this->expectExceptionCode(1619907353293);
@@ -70,7 +67,7 @@ class MigrationTest extends TestCase
     /**
      * Circular dependencies must be detected
      */
-    public function testCircularDependencyDetection()
+    public function testCircularDependencyDetection(): void
     {
         $this->expectException(MigrationException::class);
         $this->expectExceptionCode(1619911058924);
@@ -92,7 +89,7 @@ class MigrationTest extends TestCase
     /**
      * Unregistered dependencies must be detected
      */
-    public function testUnregisteredDependencyDetection()
+    public function testUnregisteredDependencyDetection(): void
     {
         $this->expectException(MigrationException::class);
         $this->expectExceptionCode(1619911058924);
@@ -109,7 +106,7 @@ class MigrationTest extends TestCase
     /**
      * Tasks management
      */
-    public function testCanAddTasks()
+    public function testCanAddTasks(): void
     {
         $migration = new Migration();
         self::assertCount(0, $migration->getBeforeTasks());

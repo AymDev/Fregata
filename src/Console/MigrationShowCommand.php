@@ -25,7 +25,7 @@ class MigrationShowCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('List all registered migrators sorted for a given migrations.')
@@ -48,6 +48,7 @@ class MigrationShowCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
+        /** @var string $migrationName */
         $migrationName = $input->getArgument('migration');
         $migration = $this->migrationRegistry->get($migrationName);
 

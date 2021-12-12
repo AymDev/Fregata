@@ -2,7 +2,6 @@
 
 namespace Fregata\Tests\Adapter\Doctrine\DBAL\ForeignKey\Task;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Fregata\Adapter\Doctrine\DBAL\ForeignKey\CopyColumnHelper;
@@ -12,9 +11,6 @@ use Fregata\Adapter\Doctrine\DBAL\ForeignKey\Migrator\HasForeignKeysInterface;
 use Fregata\Adapter\Doctrine\DBAL\ForeignKey\Task\ForeignKeyBeforeTask;
 use Fregata\Migration\Migration;
 use Fregata\Migration\MigrationContext;
-use Fregata\Migration\Migrator\Component\Executor;
-use Fregata\Migration\Migrator\Component\PullerInterface;
-use Fregata\Migration\Migrator\Component\PusherInterface;
 use Fregata\Tests\Adapter\Doctrine\DBAL\AbstractDbalTestCase;
 
 class ForeignKeyBeforeTaskTest extends AbstractDbalTestCase
@@ -30,7 +26,7 @@ class ForeignKeyBeforeTaskTest extends AbstractDbalTestCase
     /**
      * Migrators with foreign keys get copy columns for referenced and referencing columns
      */
-    public function testCopyKeyColumns()
+    public function testCopyKeyColumns(): void
     {
         // Database setup
         $this->connection->getWrappedConnection()->exec(<<<SQL
@@ -45,9 +41,19 @@ class ForeignKeyBeforeTaskTest extends AbstractDbalTestCase
             ) ENGINE=INNODB;
         SQL);
 
+        // Migrator
+        $migrator = self::getMockForAbstractClass(HasForeignKeysInterface::class);
+        $migrator->method('getConnection')->willReturn($this->connection);
+        $migrator->method('getForeignKeys')->willReturnCallback(function () {
+            return array_map(
+                fn (ForeignKeyConstraint $constraint) => new ForeignKey($constraint, 'target_referencing', ['fk']),
+                $this->connection->getSchemaManager()->listTableForeignKeys('target_referencing')
+            );
+        });
+
         // Setup task
         $migration = new Migration();
-        $migration->add(new ForeignKeyBeforeTaskMigrator($this->connection));
+        $migration->add($migrator);
         $context = new MigrationContext($migration, 'copy_columns');
 
         // Execute task
@@ -80,74 +86,21 @@ class ForeignKeyBeforeTaskTest extends AbstractDbalTestCase
     /**
      * SQLite is an incompatible platform as it does not support foreign key constraints
      */
-    public function testIncompatiblePlatform()
+    public function testIncompatiblePlatform(): void
     {
         self::expectException(ForeignKeyException::class);
         self::expectExceptionCode(1621088365786);
 
+        $migrator = self::getMockForAbstractClass(HasForeignKeysInterface::class);
+        $migrator->method('getConnection')->willReturn(DriverManager::getConnection(['url' => 'sqlite:///:memory:']));
+
         // Setup task
         $migration = new Migration();
-        $migration->add(new class implements HasForeignKeysInterface {
-
-            public function getConnection(): Connection
-            {
-                return DriverManager::getConnection(['url' => 'sqlite:///:memory:']);
-            }
-
-            public function getForeignKeys(): array
-            {
-            }
-            public function getPuller(): PullerInterface
-            {
-            }
-            public function getPusher(): PusherInterface
-            {
-            }
-            public function getExecutor(): Executor
-            {
-            }
-        });
+        $migration->add($migrator);
         $context = new MigrationContext($migration, 'incompatible');
 
         // Execute task
         $task = new ForeignKeyBeforeTask($context, new CopyColumnHelper());
         $task->execute();
-    }
-}
-
-/**
- * Mock
- * @see ForeignKeyBeforeTaskTest::testCopyKeyColumns()
- */
-class ForeignKeyBeforeTaskMigrator implements HasForeignKeysInterface
-{
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
-    {
-        $this->connection = $connection;
-    }
-
-    public function getConnection(): Connection
-    {
-        return $this->connection;
-    }
-
-    public function getForeignKeys(): array
-    {
-        return array_map(
-            fn (ForeignKeyConstraint $constraint) => new ForeignKey($constraint, 'target_referencing', ['fk']),
-            $this->connection->getSchemaManager()->listTableForeignKeys('target_referencing')
-        );
-    }
-
-    public function getPuller(): PullerInterface
-    {
-    }
-    public function getPusher(): PusherInterface
-    {
-    }
-    public function getExecutor(): Executor
-    {
     }
 }

@@ -19,11 +19,18 @@ class MigrationShowCommandTest extends TestCase
     /**
      * The migration:show command lists migrators of a migration
      */
-    public function testListMigrationMigrators()
+    public function testListMigrationMigrators(): void
     {
+        $firstMigrator = self::getMockBuilder(MigratorInterface::class)
+            ->setMockClassName('TestFirstMigrator')
+            ->getMockForAbstractClass();
+        $secondMigrator = self::getMockBuilder(MigratorInterface::class)
+            ->setMockClassName('TestSecondMigrator')
+            ->getMockForAbstractClass();
+
         $migration = new Migration();
-        $migration->add(new MigrationShowCommandFirstMigrator());
-        $migration->add(new MigrationShowCommandSecondMigrator());
+        $migration->add($firstMigrator);
+        $migration->add($secondMigrator);
 
         $registry = new MigrationRegistry();
         $registry->add('foo', $migration);
@@ -41,8 +48,8 @@ class MigrationShowCommandTest extends TestCase
         self::assertSame('foo : 2 migrators', $firstLine);
 
         // Get table data lines
-        $firstClass = preg_quote(MigrationShowCommandFirstMigrator::class, '~');
-        $secondClass = preg_quote(MigrationShowCommandSecondMigrator::class, '~');
+        $firstClass = preg_quote(get_class($firstMigrator), '~');
+        $secondClass = preg_quote(get_class($secondMigrator), '~');
         self::assertMatchesRegularExpression(
             '~0\s+' . $firstClass . '\s+\R\s+1\s+' . $secondClass . '\s+\R~',
             $display
@@ -52,7 +59,7 @@ class MigrationShowCommandTest extends TestCase
     /**
      * Get an error for unknown migration
      */
-    public function testErrorOnUnknownMigration()
+    public function testErrorOnUnknownMigration(): void
     {
         $command = new MigrationShowCommand(new MigrationRegistry(), new CommandHelper());
         $tester = new CommandTester($command);
@@ -68,11 +75,14 @@ class MigrationShowCommandTest extends TestCase
     /**
      * The --with-tasks option must list before and after tasks
      */
-    public function testListMigrationsWithTasks()
+    public function testListMigrationsWithTasks(): void
     {
+        $beforeTask = self::getMockForAbstractClass(TaskInterface::class);
+        $afterTask = self::getMockForAbstractClass(TaskInterface::class);
+
         $migration = new Migration();
-        $migration->addBeforeTask(new MigrationShowCommandBeforeTask());
-        $migration->addAfterTask(new MigrationShowCommandAfterTask());
+        $migration->addBeforeTask($beforeTask);
+        $migration->addAfterTask($afterTask);
 
         $registry = new MigrationRegistry();
         $registry->add('foo', $migration);
@@ -87,50 +97,11 @@ class MigrationShowCommandTest extends TestCase
         $display = $tester->getDisplay();
 
         // Get table data lines
-        $firstClass = preg_quote(MigrationShowCommandBeforeTask::class, '~');
-        $secondClass = preg_quote(MigrationShowCommandAfterTask::class, '~');
+        $firstClass = preg_quote(get_class($beforeTask), '~');
+        $secondClass = preg_quote(get_class($afterTask), '~');
         self::assertMatchesRegularExpression(
             '~0\s+' . $firstClass . '\s+\R.+0\s+' . $secondClass . '\s+\R~s',
             $display
         );
-    }
-}
-
-/**
- * Mocks
- * @see MigrationShowCommandTest::testListMigrationMigrators()
- */
-class MigrationShowCommandFirstMigrator implements MigratorInterface
-{
-    public function getPuller(): PullerInterface
-    {
-    }
-    public function getPusher(): PusherInterface
-    {
-    }
-    public function getExecutor(): Executor
-    {
-    }
-}
-
-class MigrationShowCommandSecondMigrator extends MigrationShowCommandFirstMigrator
-{
-}
-
-/**
- * Mocks
- * @see MigrationShowCommandTest::testListMigrationsWithTasks()
- */
-class MigrationShowCommandBeforeTask implements TaskInterface
-{
-    public function execute(): ?string
-    {
-    }
-}
-
-class MigrationShowCommandAfterTask implements TaskInterface
-{
-    public function execute(): ?string
-    {
     }
 }

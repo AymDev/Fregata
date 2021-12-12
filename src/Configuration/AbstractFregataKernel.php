@@ -38,7 +38,9 @@ abstract class AbstractFregataKernel
     {
         if (null === $this->rootDir) {
             $reflection = new \ReflectionClass(ClassLoader::class);
-            $this->rootDir = dirname($reflection->getFileName(), 3);
+            /** @var string $filePath */
+            $filePath = $reflection->getFileName();
+            $this->rootDir = dirname($filePath, 3);
         }
 
         return $this->rootDir;
@@ -74,7 +76,10 @@ abstract class AbstractFregataKernel
 
             // Load and start the container
             require_once $containerLocation;
+
+            /** @var class-string<Container> $containerClassName */
             $containerClassName = sprintf('\Fregata\%s', $this->getContainerClassName());
+
             $this->container =  new $containerClassName();
         }
 
@@ -130,6 +135,7 @@ abstract class AbstractFregataKernel
      */
     private function loadMainServices(ContainerBuilder $container): void
     {
+        /** @var string $directory */
         $directory = $container->getParameter('fregata.config_dir');
         $fileLocator = new FileLocator($directory);
 

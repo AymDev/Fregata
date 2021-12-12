@@ -10,9 +10,10 @@ use Symfony\Component\Yaml\Yaml;
 class ConfigurationTest extends TestCase
 {
     /**
+     * @param mixed[] $parsedYamlConfig
      * @dataProvider provideConfiguration
      */
-    public function testConfigurationFormat(array $parsedYamlConfig)
+    public function testConfigurationFormat(array $parsedYamlConfig): void
     {
         $processor = new Processor();
         $configuration = new Configuration();
@@ -56,12 +57,19 @@ class ConfigurationTest extends TestCase
         }
     }
 
+    /**
+     * @return \Generator<mixed[]>|mixed[][]
+     */
     public function provideConfiguration(): \Generator
     {
+        /** @var string[] $configFiles */
         $configFiles = glob(__DIR__ . '/Fixtures/configuration_*.yaml');
 
         foreach ($configFiles as $file) {
-            yield [Yaml::parse(file_get_contents($file))];
+            /** @var string $content */
+            $content = file_get_contents($file);
+
+            yield [Yaml::parse($content)];
         }
     }
 }

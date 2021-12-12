@@ -3,7 +3,7 @@ on: [push, pull_request]
 
 jobs:
     unit-tests:
-        name: PHPUnit test suite
+        name: PHPUnit & PHPStan on PHP ${{ matrix.php }}
         runs-on: ubuntu-latest
         strategy:
             matrix:
@@ -50,3 +50,7 @@ jobs:
             # Run tests suite
             -   name: Run test suite
                 run: php vendor/bin/phpunit --coverage-text
+
+            # Run PHPStan
+            -   name: Run PHPStan
+                run: php vendor/bin/phpstan

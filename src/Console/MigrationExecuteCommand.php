@@ -30,7 +30,7 @@ class MigrationExecuteCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Execute a migration.')
@@ -48,6 +48,7 @@ class MigrationExecuteCommand extends Command
         $isInteractive = $input->hasOption('no-interaction') && false === $input->getOption('no-interaction');
         $io = new SymfonyStyle($input, $output);
 
+        /** @var string $migrationName */
         $migrationName = $input->getArgument('migration');
         $migration = $this->migrationRegistry->get($migrationName);
 
@@ -85,8 +86,7 @@ class MigrationExecuteCommand extends Command
         $io->title(sprintf('Migrators: %d', count($migrators)));
 
         foreach ($migrators as $key => $migrator) {
-            $puller = $migrator->getPuller();
-            $totalItems = null === $puller ? null : $puller->count();
+            $totalItems = $migrator->getPuller()->count();
 
             if (!$output instanceof ConsoleOutputInterface) {
                 $this->runMigratorWithCustomProgress($io, $migrator, $totalItems, $key);

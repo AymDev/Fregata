@@ -7,6 +7,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Fregata\Adapter\Doctrine\DBAL\ForeignKey\CopyColumnHelper;
@@ -68,6 +69,7 @@ class ForeignKeyBeforeTask implements TaskInterface
         $this->createCopyColumns($changedTable, $columns);
 
         $comparator = new Comparator();
+        /** @var TableDiff $tableDiff */
         $tableDiff = $comparator->diffTable($originalTable, $changedTable);
 
         $connection->getSchemaManager()->alterTable($tableDiff);
@@ -100,53 +102,16 @@ class ForeignKeyBeforeTask implements TaskInterface
         }
 
         $comparator = new Comparator();
+        /** @var TableDiff $tableDiff */
         $tableDiff = $comparator->diffTable($originalTable, $changedTable);
 
         $connection->getSchemaManager()->alterTable($tableDiff);
     }
 
-//    private function createCopyColumns(Table $table, array $columnList): TableDiff
-//    {
-//        $addedColumns = [];
-//        $addedIndexes = [];
-//
-//        // Create copy columns
-//        foreach ($columnList as $column) {
-//            // Stop if copy column already exists
-//            if ($table->hasColumn($column['copy'])) {
-//                continue;
-//            }
-//
-//            $originalColumn = $table->getColumn($column['original']);
-//
-//            // Create column
-//            $copyColumn = (new Column($column['copy'], $originalColumn->getType()))
-//                ->setLength($originalColumn->getLength())
-//                ->setPrecision($originalColumn->getPrecision())
-//                ->setScale($originalColumn->getScale())
-//                ->setFixed($originalColumn->getFixed())
-//                ->setUnsigned($originalColumn->getUnsigned())
-//                ->setNotnull(false)
-//                ->setDefault(null);
-//            $addedColumns[] = $copyColumn;
-//
-//            // Create index for copy column
-//            $copyIndex = new Index($column['index'], [$column['copy']]);
-//            $addedIndexes[] = $copyIndex;
-//        }
-//
-//        return new TableDiff(
-//            $table->getName(),
-//            $addedColumns,
-//            [],
-//            [],
-//            $addedIndexes,
-//            [],
-//            [],
-//            $table
-//        );
-//    }
-
+    /**
+     * @param string[][] $columnList
+     * @throws SchemaException
+     */
     private function createCopyColumns(Table $table, array $columnList): void
     {
         foreach ($columnList as $column) {

@@ -212,7 +212,7 @@ class ForeignKeyAfterTask implements TaskInterface
         return $connection->executeUpdate($updateQuery);
     }
 
-    private function dropReferencedCopyColumns(Connection $connection, ForeignKey $foreignKey)
+    private function dropReferencedCopyColumns(Connection $connection, ForeignKey $foreignKey): void
     {
         $foreignTableName = $foreignKey->getConstraint()->getForeignTableName();
         $originalTable = $connection->getSchemaManager()->listTableDetails($foreignTableName);
@@ -224,6 +224,7 @@ class ForeignKeyAfterTask implements TaskInterface
         }
 
         $comparator = new Comparator();
+        /** @var TableDiff $tableDiff */
         $tableDiff = $comparator->diffTable($originalTable, $changedTable);
 
         $connection->getSchemaManager()->alterTable($tableDiff);
@@ -246,6 +247,7 @@ class ForeignKeyAfterTask implements TaskInterface
         }
 
         $comparator = new Comparator();
+        /** @var TableDiff $tableDiff */
         $tableDiff = $comparator->diffTable($originalTable, $changedTable);
 
         $connection->getSchemaManager()->alterTable($tableDiff);

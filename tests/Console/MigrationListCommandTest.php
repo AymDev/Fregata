@@ -21,7 +21,7 @@ class MigrationListCommandTest extends TestCase
      *  - number of migrations
      *  - name of each migration
      */
-    public function testListRegisteredMigrations()
+    public function testListRegisteredMigrations(): void
     {
         $registry = new MigrationRegistry();
         $registry->add('foo', new Migration());
@@ -34,7 +34,7 @@ class MigrationListCommandTest extends TestCase
         $display = $tester->getDisplay();
 
         // Number of migrations:
-        $firstLine = strtok($display, "\n");
+        $firstLine = strval(strtok($display, "\n"));
         self::assertStringEndsWith('2', $firstLine);
 
         // Migration names
@@ -48,11 +48,18 @@ class MigrationListCommandTest extends TestCase
     /**
      * The --with-migrators option must list migrators
      */
-    public function testListMigrationsWithMigrators()
+    public function testListMigrationsWithMigrators(): void
     {
+        $firstMigrator = self::getMockBuilder(MigratorInterface::class)
+            ->setMockClassName('TestFirstMigrator')
+            ->getMockForAbstractClass();
+        $secondMigrator = self::getMockBuilder(MigratorInterface::class)
+            ->setMockClassName('TestSecondMigrator')
+            ->getMockForAbstractClass();
+
         $migration = new Migration();
-        $migration->add(new MigrationListCommandFirstMigrator());
-        $migration->add(new MigrationListCommandSecondMigrator());
+        $migration->add($firstMigrator);
+        $migration->add($secondMigrator);
 
         $registry = new MigrationRegistry();
         $registry->add('foo', $migration);
@@ -66,8 +73,8 @@ class MigrationListCommandTest extends TestCase
         $display = $tester->getDisplay();
 
         // Get table data lines
-        $firstClass = preg_quote(MigrationListCommandFirstMigrator::class, '~');
-        $secondClass = preg_quote(MigrationListCommandSecondMigrator::class, '~');
+        $firstClass = preg_quote(get_class($firstMigrator), '~');
+        $secondClass = preg_quote(get_class($secondMigrator), '~');
         self::assertMatchesRegularExpression(
             '~0\s+' . $firstClass . '\s+\R\s+1\s+' . $secondClass . '\s+\R~',
             $display
@@ -77,11 +84,14 @@ class MigrationListCommandTest extends TestCase
     /**
      * The --with-tasks option must list before and after tasks
      */
-    public function testListMigrationsWithTasks()
+    public function testListMigrationsWithTasks(): void
     {
+        $beforeTask = self::getMockForAbstractClass(TaskInterface::class);
+        $afterTask = self::getMockForAbstractClass(TaskInterface::class);
+
         $migration = new Migration();
-        $migration->addBeforeTask(new MigrationListCommandBeforeTask());
-        $migration->addAfterTask(new MigrationListCommandAfterTask());
+        $migration->addBeforeTask($beforeTask);
+        $migration->addAfterTask($afterTask);
 
         $registry = new MigrationRegistry();
         $registry->add('foo', $migration);
@@ -95,50 +105,11 @@ class MigrationListCommandTest extends TestCase
         $display = $tester->getDisplay();
 
         // Get table data lines
-        $firstClass = preg_quote(MigrationListCommandBeforeTask::class, '~');
-        $secondClass = preg_quote(MigrationListCommandAfterTask::class, '~');
+        $firstClass = preg_quote(get_class($beforeTask), '~');
+        $secondClass = preg_quote(get_class($afterTask), '~');
         self::assertMatchesRegularExpression(
             '~0\s+' . $firstClass . '\s+\R.+0\s+' . $secondClass . '\s+\R~s',
             $display
         );
-    }
-}
-
-/**
- * Mocks
- * @see MigrationListCommandTest::testListMigrationsWithMigrators()
- */
-class MigrationListCommandFirstMigrator implements MigratorInterface
-{
-    public function getPuller(): PullerInterface
-    {
-    }
-    public function getPusher(): PusherInterface
-    {
-    }
-    public function getExecutor(): Executor
-    {
-    }
-}
-
-class MigrationListCommandSecondMigrator extends MigrationListCommandFirstMigrator
-{
-}
-
-/**
- * Mocks
- * @see MigrationListCommandTest::testListMigrationsWithTasks()
- */
-class MigrationListCommandBeforeTask implements TaskInterface
-{
-    public function execute(): ?string
-    {
-    }
-}
-
-class MigrationListCommandAfterTask implements TaskInterface
-{
-    public function execute(): ?string
-    {
     }
 }

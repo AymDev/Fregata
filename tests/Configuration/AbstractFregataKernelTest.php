@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Container;
 
 class AbstractFregataKernelTest extends TestCase
 {
-    public function testContainerCreation()
+    public function testContainerCreation(): void
     {
         $fileSystem = vfsStream::setup('abstract-fregata-kernel-test', null, [
             'config' => [
@@ -63,8 +63,11 @@ class AbstractFregataKernelTest extends TestCase
      * An exception is thrown when an invalid configuration directory is given
      * @dataProvider provideInvalidConfigurationPaths
      */
-    public function testContainerCreationWithInvalidPaths(int $exceptionCode, string $cachePath, string $configPath)
-    {
+    public function testContainerCreationWithInvalidPaths(
+        int $exceptionCode,
+        string $cachePath,
+        string $configPath
+    ): void {
         $this->expectException(ConfigurationException::class);
         $this->expectExceptionCode($exceptionCode);
 
@@ -93,6 +96,9 @@ class AbstractFregataKernelTest extends TestCase
         $kernel->getContainer();
     }
 
+    /**
+     * @return array{int, string, string}[]
+     */
     public function provideInvalidConfigurationPaths(): array
     {
         return [

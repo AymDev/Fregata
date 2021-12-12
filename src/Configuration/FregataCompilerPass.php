@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Reference;
 
 class FregataCompilerPass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         // Migration registry
         $registryDefinition = new Definition(MigrationRegistry::class);

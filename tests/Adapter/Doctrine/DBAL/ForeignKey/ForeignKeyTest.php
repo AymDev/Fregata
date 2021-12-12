@@ -11,7 +11,7 @@ class ForeignKeyTest extends TestCase
     /**
      * Basic usage
      */
-    public function testGetters()
+    public function testGetters(): void
     {
         $constraint = new ForeignKeyConstraint(['local'], 'foreign_table', ['foreign']);
         $table = 'local_table';

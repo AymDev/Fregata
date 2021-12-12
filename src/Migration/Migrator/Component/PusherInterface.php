@@ -9,6 +9,7 @@ interface PusherInterface
 {
     /**
      * Insert data into target
+     * @param mixed $data
      * @return int number of items inserted at once
      */
     public function push($data): int;

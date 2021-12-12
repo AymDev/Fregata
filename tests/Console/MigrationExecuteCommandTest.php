@@ -10,6 +10,8 @@ use Fregata\Migration\Migrator\Component\PullerInterface;
 use Fregata\Migration\Migrator\Component\PusherInterface;
 use Fregata\Migration\Migrator\MigratorInterface;
 use Fregata\Migration\TaskInterface;
+use Fregata\Tests\Migration\Migrator\Component\Fixtures\TestItemPuller;
+use Fregata\Tests\Migration\Migrator\Component\Fixtures\TestPusher;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -18,10 +20,15 @@ class MigrationExecuteCommandTest extends TestCase
     /**
      * Executes without interaction
      */
-    public function testExecution()
+    public function testExecution(): void
     {
-        $task = new MigrationExecuteCommandTask();
-        $migrator = new MigrationExecuteCommandMigrator();
+        $task = self::getMockForAbstractClass(TaskInterface::class);
+        $puller = new TestItemPuller();
+        $pusher = new TestPusher();
+        $migrator = self::getMockForAbstractClass(MigratorInterface::class);
+        $migrator->method('getPuller')->willReturn($puller);
+        $migrator->method('getPusher')->willReturn($pusher);
+        $migrator->method('getExecutor')->willReturn(new Executor());
 
         $migration = new Migration();
         $migration->add($migrator);
@@ -43,28 +50,30 @@ class MigrationExecuteCommandTest extends TestCase
         self::assertStringContainsString('[OK]', $tester->getDisplay());
 
         // Migration progress is shown
-        self::assertStringContainsString(MigrationExecuteCommandMigrator::class, $tester->getDisplay());
+        self::assertStringContainsString(get_class($migrator), $tester->getDisplay());
         self::assertStringContainsString(
-            sprintf('%1$d / %1$d', count($migrator->getPuller()->data)),
+            sprintf('%1$d / %1$d', count($puller->getItems())),
             $tester->getDisplay()
         );
 
         // Tasks are shown in order
-        $taskClass = preg_quote(MigrationExecuteCommandTask::class);
-        $migratorClass = preg_quote(MigrationExecuteCommandMigrator::class);
         self::assertMatchesRegularExpression(
-            '~Before.+' . $taskClass . '.+Migrators.+' . $migratorClass . '.+' . $taskClass . '~is',
+            sprintf(
+                '~Before.+%1$s.+Migrators.+%2$s.+%1$s~is',
+                preg_quote(get_class($task)),
+                preg_quote(get_class($migrator))
+            ),
             $tester->getDisplay()
         );
 
         // Data has been migrated
-        self::assertSame($migrator->getPuller()->data, $migrator->getPusher()->data);
+        self::assertSame($puller->getItems(), $pusher->getData());
     }
 
     /**
      * Get an error for unknown migration
      */
-    public function testErrorOnUnknownMigration()
+    public function testErrorOnUnknownMigration(): void
     {
         $command = new MigrationExecuteCommand(new MigrationRegistry());
         $tester = new CommandTester($command);
@@ -81,58 +90,5 @@ class MigrationExecuteCommandTest extends TestCase
 
         self::assertNotSame(0, $tester->getStatusCode());
         self::assertStringContainsString('[ERROR]', $tester->getDisplay());
-    }
-}
-
-/**
- * Mocks
- * @see MigrationExecuteCommandTest::testExecution()
- */
-class MigrationExecuteCommandMigrator implements MigratorInterface
-{
-    private ?PusherInterface $pusher = null;
-
-    public function getPuller(): PullerInterface
-    {
-        return new class implements PullerInterface {
-            public array $data = ['foo', 'bar', 'baz'];
-
-            public function pull()
-            {
-                return $this->data;
-            }
-
-            public function count(): ?int
-            {
-                return count($this->data);
-            }
-        };
-    }
-
-    public function getPusher(): PusherInterface
-    {
-        $this->pusher ??= new class implements PusherInterface {
-            public array $data = [];
-
-            public function push($data): int
-            {
-                $this->data[] = $data;
-                return 1;
-            }
-        };
-        return $this->pusher;
-    }
-
-    public function getExecutor(): Executor
-    {
-        return new Executor();
-    }
-}
-
-class MigrationExecuteCommandTask implements TaskInterface
-{
-    public function execute(): ?string
-    {
-        return '[EXECUTED]';
     }
 }

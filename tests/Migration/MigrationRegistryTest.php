@@ -12,7 +12,7 @@ class MigrationRegistryTest extends TestCase
     /**
      * Checks registry basic usage
      */
-    public function testMigrationRegistryBasicUsage()
+    public function testMigrationRegistryBasicUsage(): void
     {
         $registry = new MigrationRegistry();
 
@@ -31,7 +31,7 @@ class MigrationRegistryTest extends TestCase
     /**
      * Migration names must be unique
      */
-    public function testCannotRegisterDuplicateMigrations()
+    public function testCannotRegisterDuplicateMigrations(): void
     {
         self::expectException(MigrationException::class);
         self::expectExceptionCode(1619880941371);

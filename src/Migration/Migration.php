@@ -127,6 +127,7 @@ class Migration
         }
 
         // Index by class name to remap
+        /** @var array<class-string<MigratorInterface>, MigratorInterface> $migrators */
         $migrators = array_combine(
             array_map('get_class', $this->migrators),
             $this->migrators

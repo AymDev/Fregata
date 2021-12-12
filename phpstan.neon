@@ -1,0 +1,18 @@
+parameters:
+    level: 9
+    paths:
+        - bin
+        - src
+        - tests
+    typeAliases:
+        migrationConfig: 'array{name: string, parent: string|null, options: mixed[]|null, migrators_directory: string|null, migrators: class-string[]|null, tasks: array{before: class-string[]|null, after: class-string[]|null}}'
+    excludePaths:
+        analyse:
+            - ./tests/Configuration/Fixtures
+    ignoreErrors:
+        -
+            message: '~^Call to an undefined method [\w\\]+::[a-zA-Z]+\(\).$~'
+            path: src/Configuration/Configuration.php
+        -
+            message: '~^Parameter #\d \$\w+ of static method [\w\\]+::[a-zA-Z]+\(\) expects class-string<([\w\\]+)&([\w\\]+)>, class-string<\1>&class-string<\2> given\.$~'
+            path: tests
