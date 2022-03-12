@@ -209,7 +209,7 @@ class ForeignKeyAfterTask implements TaskInterface
             $updateQuery = $updateQuery->getSQL();
         }
 
-        return $connection->executeUpdate($updateQuery);
+        return (int) $connection->executeStatement($updateQuery);
     }
 
     private function dropReferencedCopyColumns(Connection $connection, ForeignKey $foreignKey): void
