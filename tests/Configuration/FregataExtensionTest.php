@@ -253,6 +253,53 @@ class FregataExtensionTest extends TestCase
         self::assertSame('child_migration', $context->getMigrationName());
         self::assertSame('test_migration', $context->getParentName());
     }
+
+    /**
+     * Extension must tag migration services
+     */
+    public function testServicesAreTagged(): void
+    {
+        $container = new ContainerBuilder();
+        $extension = new FregataExtension();
+
+        $migrator = self::getMockForAbstractClass(MigratorInterface::class);
+        $migratorClass = get_class($migrator);
+        $taskClass = TestTask::class;
+
+        $configuration = [
+            'migrations' => [
+                'test_migration' => [
+                    'migrators' => [
+                        $migratorClass
+                    ],
+                    'tasks' => [
+                        'before' => [
+                            $taskClass,
+                        ],
+                        'after' => [
+                            $taskClass,
+                        ],
+                    ]
+                ]
+            ]
+        ];
+        $extension->load([$configuration], $container);
+
+        $migrations = $container->findTaggedServiceIds(FregataExtension::TAG_MIGRATION);
+        self::assertCount(1, $migrations);
+
+        $migrators = $container->findTaggedServiceIds(FregataExtension::TAG_MIGRATOR);
+        self::assertCount(1, $migrators);
+
+        $tasks = $container->findTaggedServiceIds(FregataExtension::TAG_TASK);
+        self::assertCount(2, $tasks);
+
+        $beforeTasks = $container->findTaggedServiceIds(FregataExtension::TAG_TASK_BEFORE);
+        self::assertCount(1, $beforeTasks);
+
+        $afterTasks = $container->findTaggedServiceIds(FregataExtension::TAG_TASK_AFTER);
+        self::assertCount(1, $afterTasks);
+    }
 }
 
 /**

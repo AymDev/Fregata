@@ -18,6 +18,13 @@ use Symfony\Component\String\UnicodeString;
 
 class FregataExtension extends Extension
 {
+    // Service tags
+    public const TAG_MIGRATION = 'fregata.migration';
+    public const TAG_MIGRATOR = 'fregata.migrator';
+    public const TAG_TASK = 'fregata.task';
+    public const TAG_TASK_BEFORE = 'fregata.task.before';
+    public const TAG_TASK_AFTER = 'fregata.task.after';
+
     /** @phpstan-var migrationConfig[] */
     private array $configuration;
 
@@ -57,7 +64,9 @@ class FregataExtension extends Extension
         // Migration definition
         $migrationDefinition = new ChildDefinition('fregata.migration');
         $migrationId = 'fregata.migration.' . $migrationConfig['name'];
-        $migrationDefinition->addTag('fregata.migration', ['name' => $migrationConfig['name']]);
+        $migrationDefinition->addTag(self::TAG_MIGRATION, [
+            'name' => $migrationConfig['name']
+        ]);
         $container->setDefinition($migrationId, $migrationDefinition);
 
         // Migration context
@@ -75,7 +84,10 @@ class FregataExtension extends Extension
         foreach ($this->findMigratorsForMigration($migrationConfig) as $migratorClass) {
             $migratorDefinition = new Definition($migratorClass);
             $migratorId = $migrationId . '.migrator.' . (new UnicodeString($migratorClass))->snake();
-            $migratorDefinition->setAutowired(true);
+            $migratorDefinition
+                ->setAutowired(true)
+                ->addTag(self::TAG_MIGRATOR)
+            ;
             $container->setDefinition($migratorId, $migratorDefinition);
 
             $migratorDefinition->setBindings([MigrationContext::class => new BoundArgument($contextDefinition, false)]);
@@ -86,7 +98,11 @@ class FregataExtension extends Extension
         foreach ($this->findBeforeTaskForMigration($migrationConfig) as $beforeTaskClass) {
             $taskDefinition = new Definition($beforeTaskClass);
             $taskId = $migrationId . '.task.before.' . (new UnicodeString($beforeTaskClass))->snake();
-            $taskDefinition->setAutowired(true);
+            $taskDefinition
+                ->setAutowired(true)
+                ->addTag(self::TAG_TASK)
+                ->addTag(self::TAG_TASK_BEFORE)
+            ;
             $container->setDefinition($taskId, $taskDefinition);
 
             $taskDefinition->setBindings([MigrationContext::class => new BoundArgument($contextDefinition, false)]);
@@ -97,7 +113,11 @@ class FregataExtension extends Extension
         foreach ($this->findAfterTaskForMigration($migrationConfig) as $afterTaskClass) {
             $taskDefinition = new Definition($afterTaskClass);
             $taskId = $migrationId . '.task.after.' . (new UnicodeString($afterTaskClass))->snake();
-            $taskDefinition->setAutowired(true);
+            $taskDefinition
+                ->setAutowired(true)
+                ->addTag(self::TAG_TASK)
+                ->addTag(self::TAG_TASK_AFTER)
+            ;
             $container->setDefinition($taskId, $taskDefinition);
 
             $taskDefinition->setBindings([MigrationContext::class => new BoundArgument($contextDefinition, false)]);
